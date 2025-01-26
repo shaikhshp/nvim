@@ -63,7 +63,8 @@ return packer.startup(function(use)
     use({ "lunarvim/darkplus.nvim", commit = "13ef9daad28d3cf6c5e793acfc16ddbf456e1c83" })
     use({ "rose-pine/neovim", as = "rose-pine" })
     use({ "Shatur/neovim-ayu" })
-    -- Cmp
+    use { "catppuccin/nvim", as = "catppuccin" }
+        -- Cmp
     use({ "hrsh7th/nvim-cmp" })      -- The completion plugin
     use({ "hrsh7th/cmp-buffer" })    -- buffer completions
     use({ "hrsh7th/cmp-path" })      -- path completions
@@ -85,7 +86,24 @@ return packer.startup(function(use)
     use({ "nvimtools/none-ls.nvim", requires = {"nvim-lua/plenary.nvim", "nvimtools/none-ls-extras.nvim" }})-- for formatters and linters
     use({ "RRethy/vim-illuminate" })
     use({ "onsails/lspkind-nvim" })
-    use({ "lervag/vimtex" })
+    --[[ use({ "lervag/vimtex" }) ]]
+    use {
+        'lervag/vimtex',
+        ft = 'tex',  -- Load VimTeX only for .tex files
+        config = function()
+            vim.g.vimtex_view_method = 'zathura'  -- Change if using another PDF viewer
+            vim.g.vimtex_compiler_method = 'latexmk'
+            vim.g.vimtex_compiler_latexmk = {
+                options = {
+                    '-pdf',
+                    '-shell-escape',
+                    '-interaction=nonstopmode',
+                    '-synctex=1'
+                }
+            }
+            vim.g.vimtex_syntax_enabled = 1
+        end
+    }
     use({
         "hinell/lsp-timeout.nvim",
         requires = { "neovim/nvim-lspconfig" },

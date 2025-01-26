@@ -24,3 +24,6 @@ require "user.copilot"
 require "user.sides"
 require "user.Markdown"
 require "user.colorizer"
+require "user.vimtex"
+
+vim.opt.guifont = "Hack Nerd Font:h17"

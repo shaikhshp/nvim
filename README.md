@@ -3,7 +3,7 @@
 <a href="https://dotfyle.com/Teddy-bear-123/nvim"><img src="https://dotfyle.com/Teddy-bear-123/nvim/badges/plugins?style=flat" /></a>
 <a href="https://dotfyle.com/Teddy-bear-123/nvim"><img src="https://dotfyle.com/Teddy-bear-123/nvim/badges/leaderkey?style=flat" /></a>
 <a href="https://dotfyle.com/Teddy-bear-123/nvim"><img src="https://dotfyle.com/Teddy-bear-123/nvim/badges/plugin-manager?style=flat" /></a>
-### My personal Neovim Config
+### My Neovim Config Modification Based on [Teddy-bear-123](https://github.com/Teddy-bear-123) 
 
 ## Installation
 
