@@ -25,5 +25,7 @@ require "user.sides"
 require "user.Markdown"
 require "user.colorizer"
 require "user.vimtex"
+require "user.notebook"
+require "user.magma"
 
 vim.opt.guifont = "Hack Nerd Font:h17"

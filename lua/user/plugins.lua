@@ -162,6 +162,10 @@ return packer.startup(function(use)
         },
     })
     use({ "NvChad/nvim-colorizer.lua" })
+
+    use {"meatballs/notebook.nvim"}
+    use { 'dccsillag/magma-nvim', run = ':UpdateRemotePlugins' }
+
     -- Automatically set up your configuration after cloning packer.nvim
     -- Put this at the end after all plugins
     if PACKER_BOOTSTRAP then

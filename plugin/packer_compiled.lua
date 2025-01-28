@@ -49,8 +49,8 @@ local function save_profiles(threshold)
 end
 
 time([[Luarocks path setup]], true)
-local package_path_str = "/home/sulaiman-shaikh/.cache/nvim/packer_hererocks/2.1.1713484068/share/lua/5.1/?.lua;/home/sulaiman-shaikh/.cache/nvim/packer_hererocks/2.1.1713484068/share/lua/5.1/?/init.lua;/home/sulaiman-shaikh/.cache/nvim/packer_hererocks/2.1.1713484068/lib/luarocks/rocks-5.1/?.lua;/home/sulaiman-shaikh/.cache/nvim/packer_hererocks/2.1.1713484068/lib/luarocks/rocks-5.1/?/init.lua"
-local install_cpath_pattern = "/home/sulaiman-shaikh/.cache/nvim/packer_hererocks/2.1.1713484068/lib/lua/5.1/?.so"
+local package_path_str = "/home/sulaiman-shaikh/.cache/nvim/packer_hererocks/2.1.1703358377/share/lua/5.1/?.lua;/home/sulaiman-shaikh/.cache/nvim/packer_hererocks/2.1.1703358377/share/lua/5.1/?/init.lua;/home/sulaiman-shaikh/.cache/nvim/packer_hererocks/2.1.1703358377/lib/luarocks/rocks-5.1/?.lua;/home/sulaiman-shaikh/.cache/nvim/packer_hererocks/2.1.1703358377/lib/luarocks/rocks-5.1/?/init.lua"
+local install_cpath_pattern = "/home/sulaiman-shaikh/.cache/nvim/packer_hererocks/2.1.1703358377/lib/lua/5.1/?.so"
 if not string.find(package.path, package_path_str, 1, true) then
   package.path = package.path .. ';' .. package_path_str
 end
@@ -186,6 +186,11 @@ _G.packer_plugins = {
     path = "/home/sulaiman-shaikh/.local/share/nvim/site/pack/packer/start/lualine.nvim",
     url = "https://github.com/nvim-lualine/lualine.nvim"
   },
+  ["magma-nvim"] = {
+    loaded = true,
+    path = "/home/sulaiman-shaikh/.local/share/nvim/site/pack/packer/start/magma-nvim",
+    url = "https://github.com/dccsillag/magma-nvim"
+  },
   ["markdown-preview.nvim"] = {
     loaded = false,
     needs_bufread = false,
@@ -217,6 +222,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/sulaiman-shaikh/.local/share/nvim/site/pack/packer/start/none-ls.nvim",
     url = "https://github.com/nvimtools/none-ls.nvim"
+  },
+  ["notebook.nvim"] = {
+    loaded = true,
+    path = "/home/sulaiman-shaikh/.local/share/nvim/site/pack/packer/start/notebook.nvim",
+    url = "https://github.com/meatballs/notebook.nvim"
   },
   ["nui.nvim"] = {
     loaded = true,
@@ -329,7 +339,7 @@ _G.packer_plugins = {
     url = "https://github.com/RRethy/vim-illuminate"
   },
   vimtex = {
-    config = { "\27LJ\2\nê\2\0\0\3\0\v\0\0196\0\0\0009\0\1\0'\1\3\0=\1\2\0006\0\0\0009\0\1\0'\1\5\0=\1\4\0006\0\0\0009\0\1\0005\1\b\0005\2\a\0=\2\t\1=\1\6\0006\0\0\0009\0\1\0)\1\1\0=\1\n\0K\0\1\0\26vimtex_syntax_enabled\foptions\1\0\1\foptions\0\1\5\0\0\t-pdf\18-shell-escape\29-interaction=nonstopmode\15-synctex=1\28vimtex_compiler_latexmk\flatexmk\27vimtex_compiler_method\fzathura\23vimtex_view_method\6g\bvim\0" },
+    config = { "\27LJ\2\ná\2\0\0\3\0\v\0\0196\0\0\0009\0\1\0'\1\3\0=\1\2\0006\0\0\0009\0\1\0'\1\5\0=\1\4\0006\0\0\0009\0\1\0005\1\b\0005\2\a\0=\2\t\1=\1\6\0006\0\0\0009\0\1\0)\1\1\0=\1\n\0K\0\1\0\26vimtex_syntax_enabled\foptions\1\0\0\1\5\0\0\t-pdf\18-shell-escape\29-interaction=nonstopmode\15-synctex=1\28vimtex_compiler_latexmk\flatexmk\27vimtex_compiler_method\fzathura\23vimtex_view_method\6g\bvim\0" },
     loaded = false,
     needs_bufread = true,
     only_cond = false,
@@ -350,7 +360,7 @@ try_loadstring("\27LJ\2\n=\0\0\2\0\4\0\0056\0\0\0009\0\1\0005\1\3\0=\1\2\0K\0\1\
 time([[Setup for markdown-preview.nvim]], false)
 -- Setup for: lsp-timeout.nvim
 time([[Setup for lsp-timeout.nvim]], true)
-try_loadstring("\27LJ\2\n]\0\0\2\0\4\0\0056\0\0\0009\0\1\0005\1\3\0=\1\2\0K\0\1\0\1\0\3\vsilent\1\17startTimeout\3êN\16stopTimeout\3‡ß\18\21lspTimeoutConfig\6g\bvim\0", "setup", "lsp-timeout.nvim")
+try_loadstring("\27LJ\2\n]\0\0\2\0\4\0\0056\0\0\0009\0\1\0005\1\3\0=\1\2\0K\0\1\0\1\0\3\17startTimeout\3êN\16stopTimeout\3‡ß\18\vsilent\1\21lspTimeoutConfig\6g\bvim\0", "setup", "lsp-timeout.nvim")
 time([[Setup for lsp-timeout.nvim]], false)
 time([[packadd for lsp-timeout.nvim]], true)
 vim.cmd [[packadd lsp-timeout.nvim]]
@@ -363,8 +373,8 @@ vim.cmd [[augroup packer_load_aucmds]]
 vim.cmd [[au!]]
   -- Filetype lazy-loads
 time([[Defining lazy-load filetype autocommands]], true)
-vim.cmd [[au FileType markdown ++once lua require("packer.load")({'markdown-preview.nvim'}, { ft = "markdown" }, _G.packer_plugins)]]
 vim.cmd [[au FileType tex ++once lua require("packer.load")({'vimtex'}, { ft = "tex" }, _G.packer_plugins)]]
+vim.cmd [[au FileType markdown ++once lua require("packer.load")({'markdown-preview.nvim'}, { ft = "markdown" }, _G.packer_plugins)]]
 time([[Defining lazy-load filetype autocommands]], false)
 vim.cmd("augroup END")
 vim.cmd [[augroup filetypedetect]]
