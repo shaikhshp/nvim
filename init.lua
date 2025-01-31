@@ -27,5 +27,7 @@ require "user.colorizer"
 require "user.vimtex"
 require "user.notebook"
 require "user.magma"
+require "user.dap-python"
+require "user.dapui"
 
 vim.opt.guifont = "Hack Nerd Font:h17"

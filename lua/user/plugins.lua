@@ -45,6 +45,7 @@ return packer.startup(function(use)
     use({ "windwp/nvim-autopairs", commit = "4fc96c8f3df89b6d23e5092d31c866c53a346347" }) -- Autopairs, integrates with both cmp and treesitter
     use({ "numToStr/Comment.nvim", commit = "97a188a98b5a3a6f9b1b850799ac078faa17ab67" })
     use({ "JoosepAlviste/nvim-ts-context-commentstring", commit = "4d3a68c41a53add8804f471fcc49bb398fe8de08" })
+    use { 'echasnovski/mini.icons' }
     use({ "kyazdani42/nvim-web-devicons", commit = "563f3635c2d8a7be7933b9e547f7c178ba0d4352" })
     use({ "kyazdani42/nvim-tree.lua", commit = "7282f7de8aedf861fe0162a559fc2b214383c51c" })
     use { 'akinsho/bufferline.nvim', tag = "*", requires = 'nvim-tree/nvim-web-devicons' }
@@ -163,8 +164,14 @@ return packer.startup(function(use)
     })
     use({ "NvChad/nvim-colorizer.lua" })
 
+    -- JupyterNotebooks support 
     use {"meatballs/notebook.nvim"}
     use { 'dccsillag/magma-nvim', run = ':UpdateRemotePlugins' }
+
+    -- Debuggung and Python
+    use {'mfussenegger/nvim-dap'}
+    use {'mfussenegger/nvim-dap-python'}
+    use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap", "nvim-neotest/nvim-nio"} }
 
     -- Automatically set up your configuration after cloning packer.nvim
     -- Put this at the end after all plugins
