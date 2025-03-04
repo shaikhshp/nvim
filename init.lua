@@ -31,3 +31,4 @@ require "user.dap-python"
 require "user.dapui"
 
 vim.opt.guifont = "Hack Nerd Font:h17"
+-- vim.cmd("set clipboard += unnamedplus")
