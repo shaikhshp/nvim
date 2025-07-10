@@ -84,7 +84,9 @@ return packer.startup(function(use)
     use({ "neovim/nvim-lspconfig" }) -- enable LSP
     use({ "williamboman/mason.nvim" }) -- simple to use language server installer
     use({ "williamboman/mason-lspconfig.nvim" })
-    use({ "nvimtools/none-ls.nvim", requires = {"nvim-lua/plenary.nvim", "nvimtools/none-ls-extras.nvim" }})-- for formatters and linters
+    -- use({ "nvimtools/none-ls.nvim", requires = {"nvim-lua/plenary.nvim", "nvimtools/none-ls-extras.nvim" }})-- for formatters and linters
+    -- new, correct:
+    use({ "nvimtools/none-ls.nvim", commit = "0fa6ba7", requires = {"nvim-lua/plenary.nvim", "nvimtools/none-ls-extras.nvim" }})
     use({ "RRethy/vim-illuminate" })
     use({ "onsails/lspkind-nvim" })
     --[[ use({ "lervag/vimtex" }) ]]
