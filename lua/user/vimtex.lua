@@ -23,6 +23,25 @@
 --     vim.api.nvim_set_keymap('n', '<leader>xx', '<cmd>VimtexClean<CR>', { noremap = true, silent = true })
 --     vim.api.nvim_set_keymap('n', '<leader>xe', '<cmd>VimtexErrors<CR>', { noremap = true, silent = true })
 -- end)
+vim.g.vimtex_view_method = "zathura"
+
+vim.g.vimtex_compiler_method = "latexmk"
+vim.g.vimtex_compiler_latexmk = {
+  executable = "latexmk",
+  options = {
+    "-pdf",
+    "-shell-escape",
+    "-file-line-error",
+    "-synctex=1",
+    "-interaction=nonstopmode",
+  },
+}
+
+vim.g.vimtex_quickfix_mode = 0
+vim.g.vimtex_syntax_enabled = 1
+
+local map = vim.keymap.set
+local opts = { noremap = true, silent = true }
 
 vim.api.nvim_set_keymap('n', '<leader>xc', '<cmd>VimtexCompile<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>xf', '<cmd>VimtexCompileSelected<CR>', { noremap = true, silent = true })
