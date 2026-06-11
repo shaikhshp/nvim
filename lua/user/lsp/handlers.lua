@@ -42,13 +42,17 @@ M.setup = function()
 
 	vim.diagnostic.config(config)
 
-	vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-		border = "rounded",
-	})
+	local hover = vim.lsp.handlers.hover
+	vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
+		config = vim.tbl_deep_extend("force", config or {}, { border = "rounded" })
+		return hover(err, result, ctx, config)
+	end
 
-	vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
-		border = "rounded",
-	})
+	local signature_help = vim.lsp.handlers.signature_help
+	vim.lsp.handlers["textDocument/signatureHelp"] = function(err, result, ctx, config)
+		config = vim.tbl_deep_extend("force", config or {}, { border = "rounded" })
+		return signature_help(err, result, ctx, config)
+	end
 end
 
 local function lsp_keymaps(bufnr)
@@ -82,11 +86,6 @@ M.on_attach = function(client, bufnr)
 	end
 
 	lsp_keymaps(bufnr)
-	local status_ok, illuminate = pcall(require, "illuminate")
-	if not status_ok then
-		return
-	end
-	illuminate.on_attach(client)
 end
 
 return M

@@ -107,18 +107,6 @@ return packer.startup(function(use)
             vim.g.vimtex_syntax_enabled = 1
         end
     }
-    use({
-        "hinell/lsp-timeout.nvim",
-        requires = { "neovim/nvim-lspconfig" },
-        setup = function()
-            vim.g.lspTimeoutConfig = {
-                stopTimeout = 1000 * 60 * 5, --     stopTimeout  = 1000 * 60 * 5,  -- ms, timeout before stopping all LSP servers
-                startTimeout = 1000 * 10, -- ms, timeout before restart
-                silent = false,  -- true to suppress notifications
-            }
-        end,
-    })
-
     -- Telescope
     use({
         "nvim-telescope/telescope.nvim",

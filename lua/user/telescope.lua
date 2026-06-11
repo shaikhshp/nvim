@@ -5,12 +5,22 @@ end
 
 local actions = require "telescope.actions"
 
+local ts_parsers_ok, ts_parsers = pcall(require, "nvim-treesitter.parsers")
+if ts_parsers_ok and ts_parsers.ft_to_lang == nil then
+  ts_parsers.ft_to_lang = function(ft)
+    return vim.treesitter.language.get_lang(ft) or ft
+  end
+end
+
 telescope.setup {
   defaults = {
 
     prompt_prefix = " ",
     selection_caret = " ",
     path_display = { "smart" },
+    preview = {
+      treesitter = false,
+    },
 
     mappings = {
       i = {

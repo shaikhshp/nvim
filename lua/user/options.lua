@@ -1,3 +1,7 @@
+if vim.islist then
+  vim.tbl_islist = vim.islist
+end
+
 local options = {
   backup = false,                          -- creates a backup file
   clipboard = "unnamedplus",               -- allows neovim to access the system clipboard
@@ -49,4 +53,3 @@ vim.opt.shortmess:append "c"                           -- don't give |ins-comple
 vim.opt.iskeyword:append "-"                           -- hyphenated words recognized by searches
 vim.opt.formatoptions:remove({ "c", "r", "o" })        -- don't insert the current comment leader automatically for auto-wrapping comments using 'textwidth', hitting <Enter> in insert mode, or hitting 'o' or 'O' in normal mode.
 vim.opt.runtimepath:remove("/usr/share/vim/vimfiles")  -- separate vim plugins from neovim in case vim still in use
-

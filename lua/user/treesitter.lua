@@ -1,8 +1,10 @@
-local M = {
-}
+local M = {}
+
 function M.config()
-  local treesitter = require "nvim-treesitter"
-  local configs = require "nvim-treesitter.configs"
+  local status_ok, configs = pcall(require, "nvim-treesitter.configs")
+  if not status_ok then
+    return
+  end
 
   configs.setup {
     ensure_installed = { "lua", "markdown", "markdown_inline", "bash", "python" }, -- put the language you want in this array
@@ -19,7 +21,8 @@ function M.config()
     },
     indent = { enable = true, disable = { "python", "css" } },
   }
-    
 end
+
+M.config()
 
 return M
