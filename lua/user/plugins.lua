@@ -58,7 +58,35 @@ return packer.startup(function(use)
     use({ "goolord/alpha-nvim"})
     use({ "folke/which-key.nvim" })
     use({ "neoclide/coc.nvim", branch = "release" })
-    use({ "andweeb/presence.nvim" })
+    
+    --use({ "andweeb/presence.nvim" })
+    use {
+        "vyfor/cord.nvim",
+
+        config = function()
+            require("cord").setup({
+                idle = {
+                    enabled = false,
+                },
+
+                display = {
+                    theme = 'catppuccin',
+                    flavor = 'mocha',
+                },
+
+                advanced = {
+                    discord = {
+                        reconnect = {
+                            enabled = true,
+                            initial = true,
+                            interval = 5000,
+                        },
+                    },
+                },
+            })
+        end,
+    }
+
     -- Colorschemes
     use({ "folke/tokyonight.nvim", commit = "66bfc2e8f754869c7b651f3f47a2ee56ae557764" })
     use({ "lunarvim/darkplus.nvim", commit = "13ef9daad28d3cf6c5e793acfc16ddbf456e1c83" })
