@@ -69,10 +69,10 @@ return packer.startup(function(use)
                     enabled = false,
                 },
 
-                display = {
-                    theme = 'catppuccin',
-                    flavor = 'mocha',
-                },
+                -- display = {
+                --     theme = 'catppuccin',
+                --     flavor = 'mocha',
+                -- },
 
                 advanced = {
                     discord = {
