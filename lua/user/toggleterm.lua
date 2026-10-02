@@ -1,70 +1,71 @@
+local M = {}
 local status_ok, toggleterm = pcall(require, "toggleterm")
 if not status_ok then
-	return
+    return M
+end
+
+local terminal_ok, terminal = pcall(require, "toggleterm.terminal")
+if not terminal_ok then
+    return M
 end
 
 toggleterm.setup({
-	size = 20,
-	open_mapping = [[<c-\>]],
-	hide_numbers = true,
-	shade_filetypes = {},
-	shade_terminals = true,
-	shading_factor = 2,
-	start_in_insert = true,
-	insert_mappings = true,
-	persist_size = true,
-	direction = "float",
-	close_on_exit = true,
-	shell = vim.o.shell,
-	float_opts = {
-		border = "curved",
-		winblend = 0,
-		highlights = {
-			border = "Normal",
-			background = "Normal",
-		},
-	},
+    size = 20,
+    open_mapping = [[<c-\>]],
+    hide_numbers = true,
+    shade_filetypes = {},
+    shade_terminals = true,
+    shading_factor = 2,
+    start_in_insert = true,
+    insert_mappings = true,
+    persist_size = true,
+    direction = "float",
+    close_on_exit = true,
+    shell = vim.o.shell,
+    float_opts = {
+        border = "curved",
+        winblend = 0,
+        highlights = { border = "Normal", background = "Normal" },
+    },
 })
 
-function _G.set_terminal_keymaps()
-  local opts = {noremap = true}
-  vim.api.nvim_buf_set_keymap(0, 't', '<esc>', [[<C-\><C-n>]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', 'jk', [[<C-\><C-n>]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', '<C-h>', [[<C-\><C-n><C-W>h]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', '<C-j>', [[<C-\><C-n><C-W>j]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', '<C-k>', [[<C-\><C-n><C-W>k]], opts)
-  vim.api.nvim_buf_set_keymap(0, 't', '<C-l>', [[<C-\><C-n><C-W>l]], opts)
+vim.api.nvim_create_autocmd("TermOpen", {
+    group = vim.api.nvim_create_augroup("UserToggleterm", { clear = true }),
+    pattern = "term://*#toggleterm#*",
+    callback = function(args)
+        local opts = { buffer = args.buf, silent = true }
+        vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], opts)
+        vim.keymap.set("t", "jk", [[<C-\><C-n>]], opts)
+        for _, direction in ipairs({ "h", "j", "k", "l" }) do
+            vim.keymap.set("t", "<C-" .. direction .. ">", [[<C-\><C-n><C-W>]] .. direction, opts)
+        end
+    end,
+})
+
+local lazygit = terminal.Terminal:new({ cmd = "lazygit", hidden = true })
+local node = terminal.Terminal:new({ cmd = "node", hidden = true })
+local ncdu = terminal.Terminal:new({ cmd = "ncdu", hidden = true })
+local htop = terminal.Terminal:new({ cmd = "htop", hidden = true })
+local python = terminal.Terminal:new({ cmd = "python", hidden = true })
+
+function M.lazygit_toggle()
+    lazygit:toggle()
 end
 
-vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
-
-local Terminal = require("toggleterm.terminal").Terminal
-local lazygit = Terminal:new({ cmd = "lazygit", hidden = true })
-
-function _LAZYGIT_TOGGLE()
-	lazygit:toggle()
+function M.node_toggle()
+    node:toggle()
 end
 
-local node = Terminal:new({ cmd = "node", hidden = true })
-
-function _NODE_TOGGLE()
-	node:toggle()
+function M.ncdu_toggle()
+    ncdu:toggle()
 end
 
-local ncdu = Terminal:new({ cmd = "ncdu", hidden = true })
-
-function _NCDU_TOGGLE()
-	ncdu:toggle()
+function M.htop_toggle()
+    htop:toggle()
 end
 
-local htop = Terminal:new({ cmd = "htop", hidden = true })
-
-function _HTOP_TOGGLE()
-	htop:toggle()
+function M.python_toggle()
+    python:toggle()
 end
 
-local python = Terminal:new({ cmd = "python", hidden = true })
-
-function _PYTHON_TOGGLE()
-	python:toggle()
-end
+return M

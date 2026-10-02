@@ -1,34 +1,31 @@
-require "user.options"
-require "user.keymaps"
-require "user.plugins"
-require "user.colorscheme"
-require "user.cmp"
-require "user.lsp"
-require "user.telescope"
-require "user.gitsigns"
-require "user.treesitter"
-require "user.autopairs"
-require "user.comment"
-require "user.nvim-tree"
-require "user.bufferline"
-require "user.lualine"
-require "user.toggleterm"
-require "user.project"
-require "user.impatient"
-require "user.indentline"
-require "user.alpha"
-require "user.whichkey"
-require "user.autocommands"
-require "user.nvim-autopairs"
-require "user.copilot"
-require "user.sides"
-require "user.Markdown"
-require "user.colorizer"
-require "user.vimtex"
-require "user.notebook"
-require "user.magma"
-require "user.dap-python"
-require "user.dapui"
-
-vim.opt.guifont = "Hack Nerd Font:h17"
--- vim.cmd("set clipboard += unnamedplus")
+require("user.options")
+require("user.python")
+require("user.keymaps")
+require("user.vimtex")
+require("user.plugins")
+require("user.colorscheme")
+require("user.cmp")
+require("user.formatting")
+require("user.lsp")
+require("user.telescope")
+require("user.gitsigns")
+require("user.treesitter")
+require("user.autopairs")
+require("user.comment")
+require("user.nvim-tree")
+require("user.bufferline")
+require("user.lualine")
+require("user.toggleterm")
+require("user.project")
+require("user.indentline")
+require("user.alpha")
+require("user.whichkey")
+require("user.autocommands")
+require("user.ai")
+require("user.colorizer")
+require("user.documents")
+require("user.notebook")
+require("user.dap-python")
+require("user.dap-rust")
+require("user.dapui")
+require("user.workflow")

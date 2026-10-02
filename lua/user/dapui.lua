@@ -1,28 +1,58 @@
-require("dapui").setup({
-    -- 1) Icons for expand/collapse in side panels
+local dap_ok, dap = pcall(require, "dap")
+if not dap_ok then
+    return
+end
+
+local function map(lhs, rhs, desc)
+    vim.keymap.set("n", lhs, rhs, { silent = true, desc = desc })
+end
+map("<leader>dd", dap.continue, "Debug continue")
+map("<leader>dc", dap.clear_breakpoints, "Debug clear breakpoints")
+map("<leader>db", dap.toggle_breakpoint, "Debug toggle breakpoint")
+map("<leader>dx", dap.disconnect, "Debug disconnect")
+map("<leader>dt", dap.terminate, "Debug terminate")
+map("<leader>di", dap.step_into, "Debug step into")
+map("<leader>do", dap.step_out, "Debug step out")
+map("<leader>dp", dap.step_over, "Debug step over")
+map("<leader>dB", function()
+    vim.ui.input({ prompt = "Breakpoint condition: " }, function(condition)
+        if condition then
+            dap.set_breakpoint(condition)
+        end
+    end)
+end, "Debug conditional breakpoint")
+map("<leader>dl", dap.run_last, "Debug run last")
+map("<leader>dr", dap.restart, "Debug restart")
+map("<leader>de", dap.repl.toggle, "Debug toggle REPL")
+
+local ui_ok, dapui = pcall(require, "dapui")
+if not ui_ok then
+    return
+end
+map("<leader>du", dapui.toggle, "Debug toggle UI")
+
+dapui.setup({
     icons = {
-        expanded = "▾",      -- or e.g. "v", "⯆", ""
-        collapsed = "▸",     -- or e.g. ">", "⯈", ""
-        current_frame = "▸", -- shown for the current scope/frame
+        expanded = "▾",
+        collapsed = "▸",
+        current_frame = "▸",
     },
 
-    -- 2) Icons for debugging controls (play, pause, step, etc.)
     controls = {
         enabled = true,
-        element = "repl",  -- which element to attach the controls to
+        element = "repl", -- which element to attach the controls to
         icons = {
-            pause = "",      -- or e.g. "", ""
-            play = "",       -- or e.g. "", "契"
-            step_into = "",  -- or e.g. ""
-            step_over = "",  -- or e.g. ""
-            step_out = "",   -- or e.g. ""
-            step_back = "",  -- or e.g. ""
-            run_last = "↻",   -- or e.g. ""
-            terminate = "□",  -- or e.g. "", ""
+            pause = "",
+            play = "",
+            step_into = "",
+            step_over = "",
+            step_out = "",
+            step_back = "",
+            run_last = "↻",
+            terminate = "□",
         },
     },
 
-    -- Other configs (unchanged), included here for completeness:
     mappings = {
         expand = { "<CR>", "<2-LeftMouse>" },
         open = "o",
@@ -32,10 +62,8 @@ require("dapui").setup({
         toggle = "t",
     },
 
-    -- Whether to expand all lines in your frames/scopes pane
     expand_lines = true,
 
-    -- Layout configuration
     layouts = {
         {
             elements = {
@@ -44,7 +72,7 @@ require("dapui").setup({
                 { id = "stacks", size = 0.25 },
                 { id = "watches", size = 0.25 },
             },
-            size = 40,      -- height of the window
+            size = 40,
             position = "left",
         },
         {
@@ -54,7 +82,6 @@ require("dapui").setup({
         },
     },
 
-    -- Floating window config
     floating = {
         max_height = 0.9,
         max_width = 0.5,
@@ -65,31 +92,17 @@ require("dapui").setup({
     },
 
     windows = { indent = 1 },
-    render = {
-        max_type_length = nil, -- Can be integer to truncate variable types
-    },
 })
 
-local dap, dapui = require("dap"), require("dapui")
 dap.listeners.before.attach.dapui_config = function()
-  dapui.open()
+    dapui.open()
 end
 dap.listeners.before.launch.dapui_config = function()
-  dapui.open()
+    dapui.open()
 end
 dap.listeners.before.event_terminated.dapui_config = function()
-  dapui.close()
+    dapui.close()
 end
 dap.listeners.before.event_exited.dapui_config = function()
-  dapui.close()
+    dapui.close()
 end
-
-vim.api.nvim_set_keymap('n', '<leader>dd', '<cmd>DapContinue<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>dc', '<cmd>DapClearBreakpoints<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>db', '<cmd>DapToggleBreakpoint<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>dx', '<cmd>DapDisconnect<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>dt', '<cmd>DapTerminate<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>di', '<cmd>DapStepInto<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>do', '<cmd>DapStepOut<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>dp', '<cmd>DapStepOver<CR>', { noremap = true, silent = true })
-

@@ -1,2 +1,15 @@
-# ignore Packer’s compiled loader
+# Generated plugin loader (regenerate with :PackerCompile).
 /plugin/packer_compiled.lua
+
+# Editor, Python test, and local tooling artifacts.
+*.swp
+*.swo
+*~
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+.luarc.json
+
+# latexindent's local execution log.
+/indent.log

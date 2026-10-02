@@ -1,56 +1,37 @@
--- return require('packer').startup(function(use)
---     use {
---         'lervag/vimtex',
---         ft = 'tex',  -- Load VimTeX only for .tex files
---         config = function()
---             vim.g.vimtex_view_method = 'zathura'  -- Change if using another PDF viewer
---             vim.g.vimtex_compiler_method = 'latexmk'
---             vim.g.vimtex_compiler_latexmk = {
---                 options = {
---                     '-pdf',
---                     '-shell-escape',
---                     '-interaction=nonstopmode',
---                     '-synctex=1'
---                 }
---             }
---             vim.g.vimtex_syntax_enabled = 1
---         end
---     }
---     -- Custom Keybindings for VimTeX
---     vim.api.nvim_set_keymap('n', '<leader>xc', '<cmd>VimtexCompile<CR>', { noremap = true, silent = true })
---     vim.api.nvim_set_keymap('n', '<leader>xv', '<cmd>VimtexView<CR>', { noremap = true, silent = true })
---     vim.api.nvim_set_keymap('n', '<leader>xs', '<cmd>VimtexStop<CR>', { noremap = true, silent = true })
---     vim.api.nvim_set_keymap('n', '<leader>xx', '<cmd>VimtexClean<CR>', { noremap = true, silent = true })
---     vim.api.nvim_set_keymap('n', '<leader>xe', '<cmd>VimtexErrors<CR>', { noremap = true, silent = true })
--- end)
 vim.g.vimtex_view_method = "zathura"
-
 vim.g.vimtex_compiler_method = "latexmk"
-vim.g.vimtex_compiler_latexmk = {
-  executable = "latexmk",
-  options = {
-    "-pdf",
-    "-shell-escape",
-    "-file-line-error",
-    "-synctex=1",
-    "-interaction=nonstopmode",
-  },
-}
-
+vim.g.vimtex_mappings_prefix = "<localleader>v"
 vim.g.vimtex_quickfix_mode = 0
-vim.g.vimtex_syntax_enabled = 1
+local options = { "-pdf", "-interaction=nonstopmode", "-synctex=1", "-file-line-error" }
+if vim.env.NVIM_TEX_SHELL_ESCAPE == "1" then
+    options[#options + 1] = "-shell-escape"
+end
+vim.g.vimtex_compiler_latexmk = { executable = "latexmk", options = options }
 
-local map = vim.keymap.set
-local opts = { noremap = true, silent = true }
-
-vim.api.nvim_set_keymap('n', '<leader>xc', '<cmd>VimtexCompile<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>xf', '<cmd>VimtexCompileSelected<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>xv', '<cmd>VimtexView<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>xs', '<cmd>VimtexStop<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>xx', '<cmd>VimtexClean<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>xe', '<cmd>VimtexErrors<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>xz', '<cmd>VimtexContextMenu<CR>', {noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>xl', '<cmd>VimtexCountLetters<CR>', {noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>xw', '<cmd>VimtexCountWords<CR>', {noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>xt', '<cmd>VimtexStatus<CR>', {noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>xa', '<cmd>VimtexStopAll<CR>', {noremap = true, silent = true })
+local commands = {
+    xc = { "VimtexCompile", "Compile LaTeX" },
+    xf = { "VimtexCompileSelected", "Compile selection" },
+    xv = { "VimtexView", "View PDF" },
+    xs = { "VimtexStop", "Stop compiler" },
+    xx = { "VimtexClean", "Clean build files" },
+    xe = { "VimtexErrors", "Compiler errors" },
+    xz = { "VimtexContextMenu", "LaTeX context menu" },
+    xl = { "VimtexCountLetters", "Count letters" },
+    xw = { "VimtexCountWords", "Count words" },
+    xt = { "VimtexStatus", "Compiler status" },
+    xa = { "VimtexStopAll", "Stop all compilers" },
+}
+local group = vim.api.nvim_create_augroup("UserVimtex", { clear = true })
+vim.api.nvim_create_autocmd("FileType", {
+    group = group,
+    pattern = { "tex", "plaintex", "bib" },
+    callback = function(event)
+        for key, entry in pairs(commands) do
+            vim.keymap.set("n", "<leader>" .. key, "<cmd>" .. entry[1] .. "<CR>", {
+                buffer = event.buf,
+                silent = true,
+                desc = entry[2],
+            })
+        end
+    end,
+})

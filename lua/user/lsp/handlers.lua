@@ -1,91 +1,55 @@
 local M = {}
 
-local status_cmp_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-if not status_cmp_ok then
-	return
-end
-
 M.capabilities = vim.lsp.protocol.make_client_capabilities()
-M.capabilities.textDocument.completion.completionItem.snippetSupport = true
-M.capabilities = cmp_nvim_lsp.default_capabilities(M.capabilities)
-
-M.setup = function()
-	local signs = {
-
-		{ name = "DiagnosticSignError", text = "" },
-		{ name = "DiagnosticSignWarn", text = "" },
-		{ name = "DiagnosticSignHint", text = "" },
-		{ name = "DiagnosticSignInfo", text = "" },
-	}
-
-	for _, sign in ipairs(signs) do
-		vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = "" })
-	end
-
-	local config = {
-		virtual_text = false, -- disable virtual text
-		signs = {
-			active = signs, -- show signs
-		},
-		update_in_insert = true,
-		underline = true,
-		severity_sort = true,
-		float = {
-			focusable = true,
-			style = "minimal",
-			border = "rounded",
-			source = "always",
-			header = "",
-			prefix = "",
-		},
-	}
-
-	vim.diagnostic.config(config)
-
-	local hover = vim.lsp.handlers.hover
-	vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
-		config = vim.tbl_deep_extend("force", config or {}, { border = "rounded" })
-		return hover(err, result, ctx, config)
-	end
-
-	local signature_help = vim.lsp.handlers.signature_help
-	vim.lsp.handlers["textDocument/signatureHelp"] = function(err, result, ctx, config)
-		config = vim.tbl_deep_extend("force", config or {}, { border = "rounded" })
-		return signature_help(err, result, ctx, config)
-	end
+local ok, cmp = pcall(require, "cmp_nvim_lsp")
+if ok then
+    M.capabilities = cmp.default_capabilities(M.capabilities)
 end
 
-local function lsp_keymaps(bufnr)
-	local opts = { noremap = true, silent = true }
-	local keymap = vim.api.nvim_buf_set_keymap
-	keymap(bufnr, "n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
-	keymap(bufnr, "n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-	keymap(bufnr, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
-	keymap(bufnr, "n", "gI", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-	keymap(bufnr, "n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-	keymap(bufnr, "n", "gl", "<cmd>lua vim.diagnostic.open_float()<CR>", opts)
-	keymap(bufnr, "n", "<leader>lf", "<cmd>lua vim.lsp.buf.format{ async = true }<cr>", opts)
-	keymap(bufnr, "n", "<leader>li", "<cmd>LspInfo<cr>", opts)
-	keymap(bufnr, "n", "<leader>lI", "<cmd>LspInstall<cr>", opts)
-    keymap(bufnr, "n", "<leader>lm", "<cmd>Mason<cr>", opts)
-	keymap(bufnr, "n", "<leader>la", "<cmd>lua vim.lsp.buf.code_action()<cr>", opts)
-	keymap(bufnr, "n", "<leader>lj", "<cmd>lua vim.diagnostic.goto_next({buffer=0})<cr>", opts)
-	keymap(bufnr, "n", "<leader>lk", "<cmd>lua vim.diagnostic.goto_prev({buffer=0})<cr>", opts)
-	keymap(bufnr, "n", "<leader>lr", "<cmd>lua vim.lsp.buf.rename()<cr>", opts)
-	keymap(bufnr, "n", "<leader>ls", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
-	keymap(bufnr, "n", "<leader>lq", "<cmd>lua vim.diagnostic.setloclist()<CR>", opts)
+function M.setup()
+    vim.diagnostic.config({
+        virtual_text = false,
+        signs = true,
+        update_in_insert = true,
+        underline = true,
+        severity_sort = true,
+        float = { border = "rounded", source = "always", header = "", prefix = "" },
+    })
 end
 
-M.on_attach = function(client, bufnr)
-	if client.name == "ts_ls" then
-		client.server_capabilities.documentFormattingProvider = false
-	end
-
-	if client.name == "sumneko_lua" then
-		client.server_capabilities.documentFormattingProvider = false
-	end
-
-	lsp_keymaps(bufnr)
+function M.on_attach(client, bufnr)
+    if client.name == "ruff" then
+        client.server_capabilities.hoverProvider = false
+    end
+    local function map(lhs, rhs, desc)
+        vim.keymap.set("n", lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
+    end
+    map("gD", vim.lsp.buf.declaration, "LSP declaration")
+    map("gd", vim.lsp.buf.definition, "LSP definition")
+    map("K", function()
+        vim.lsp.buf.hover({ border = "rounded" })
+    end, "LSP hover")
+    map("gI", vim.lsp.buf.implementation, "LSP implementation")
+    map("grr", vim.lsp.buf.references, "LSP references")
+    map("gl", vim.diagnostic.open_float, "Line diagnostics")
+    map("<leader>lf", function()
+        require("user.formatting").format()
+    end, "Format buffer")
+    map("<leader>li", "<cmd>LspInfo<CR>", "LSP information")
+    map("<leader>lm", "<cmd>Mason<CR>", "Mason tools")
+    map("<leader>la", vim.lsp.buf.code_action, "LSP code action")
+    map("<leader>lj", function()
+        vim.diagnostic.jump({ count = 1, float = true })
+    end, "Next diagnostic")
+    map("<leader>lk", function()
+        vim.diagnostic.jump({ count = -1, float = true })
+    end, "Previous diagnostic")
+    map("<leader>lr", vim.lsp.buf.rename, "LSP rename")
+    map("<leader>ls", "<cmd>Telescope lsp_document_symbols<CR>", "Document symbols")
+    map("<leader>lh", function()
+        vim.lsp.buf.signature_help({ border = "rounded" })
+    end, "Signature help")
+    map("<leader>lq", vim.diagnostic.setloclist, "Diagnostic location list")
 end
 
 return M
