@@ -422,7 +422,19 @@ Alpha-local **Normal** buttons from `user.alpha` do not use leader:
 | `c` | Edit `$MYVIMRC` |
 | `q` | Quit Neovim (`:qa`) |
 
-`user.autocommands` maps **Normal `q`** buffer-locally to close quickfix, help, man, and lspinfo windows. Bufferline mouse actions (`user.bufferline`) select on left-click and `Bdelete` on right-click/close. Cord, LeetCode, and vim-be-good have no additional custom keyboard maps in their config modules; consult their own commands/defaults rather than assuming leader bindings.
+`user.autocommands` maps **Normal `q`** buffer-locally to close quickfix, help, man, and lspinfo windows. Bufferline mouse actions (`user.bufferline`) select on left-click and `Bdelete` on right-click/close. LeetCode and vim-be-good have no additional custom keyboard maps in their config modules; consult their own commands/defaults rather than assuming leader bindings.
+
+## Discord Presence
+
+Source: `lua/user/workflow.lua`. Requires Cord. The uppercase key does not conflict with lowercase `<Space>d...` debugging mappings.
+
+| Mode | Keys | Command / Action |
+| --- | --- | --- |
+| n | `<Space>D` | `Cord presence toggle`: hide/clear Neovim's Discord activity, or resume it |
+
+Use this before gaming to remove Neovim's presence; press it again to restore the current activity. Hiding pauses updates and idle detection, so focus changes do not automatically reenable it. This is a session-local toggle, not a saved preference. Other running Neovim instances can publish their own Cord activity independently.
+
+Cord shows `Idling` after five minutes of inactivity, with a sleeping-emoji idle-image tooltip. Activity or a received `FocusGained` event clears ordinary idle. Smart idle prefers another active Cord instance over this instance's idle presence. Terminal/GUI focus-event support is required for focus-return detection. `:Cord presence hide` and `:Cord presence show` explicitly hide/restore presence; this is separate from toggling the idle feature.
 
 ## Other Plugin Defaults
 
@@ -501,4 +513,4 @@ In Insert mode, backtick-prefixed shorthands expand math symbols and Greek lette
 | LeetCode back/exit | `q` / `qa` | Back / exit Neovim |
 | VimBeGood Snake | `h/j/k/l` | Snake direction |
 
-VimBeGood's menu selects entries by native deletion (for example `dd`); other games observe native edits. Markdown browser preview exposes commands and `<Plug>` targets; the custom physical keys are listed in the Markdown Preview section. Cord and Notify have no physical default launcher/dismiss shortcut configured here. This catalog does not enumerate all native Vim commands, external terminal programs, PDF viewers, or browser controls.
+VimBeGood's menu selects entries by native deletion (for example `dd`); other games observe native edits. Markdown browser preview exposes commands and `<Plug>` targets; the custom physical keys are listed in the Markdown Preview section. Cord's custom presence toggle is documented above; Notify has no physical default dismiss shortcut configured here. This catalog does not enumerate all native Vim commands, external terminal programs, PDF viewers, or browser controls.

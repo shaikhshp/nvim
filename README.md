@@ -528,11 +528,13 @@ Local AI transport does **not** make the entire configuration offline or private
 - Packer bootstrap, plugin builds, Mason, and parser installation use the network.
 - JSON language-service schemas can refer to remote URLs.
 - Grammarly is configured when its executable is available; review that service separately.
-- Cord is set up during startup when installed and can publish Discord Rich Presence. It is not gated behind an explicit command; review or disable it before using sensitive projects.
+- Cord is set up during startup when installed and can publish Discord Rich Presence. Normal-mode `<leader>D` toggles presence off/on (`:Cord presence toggle`): hide it before gaming or working on sensitive projects, then press again to restore it. Hiding remains in effect across focus changes but is not saved across Neovim restarts; other Neovim instances can still publish their own activity.
 - LeetCode has account/network behavior and logging, with storage under `stdpath("data")/leetcode`.
 - Notebook kernels and TeX shell escape execute code and should only be used with trusted inputs.
 
 Review `lua/user/workflow.lua`, the plugin specification, and enabled language services before adopting the configuration. Avoid sharing local test reports or generated files without inspecting them for paths, process information, and content.
+
+Cord displays `Idling` after five minutes of inactivity, with a sleeping-emoji idle tooltip. Activity or regaining focus clears ordinary idle, provided the terminal/GUI delivers focus events. Smart idle favors another active Cord instance over an idle one. See [KEYMAPS.md](KEYMAPS.md#discord-presence) for the presence controls.
 
 ## Customization
 
