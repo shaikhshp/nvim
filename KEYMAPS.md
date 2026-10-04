@@ -39,6 +39,7 @@ All keys below are **Normal mode** and prefixed with `<Space>`. Source: `user.ke
 | `q` | Quit window (`:quit`, not force quit) |
 | `c` | Close buffer with `:Bdelete` |
 | `h` | Clear search highlighting |
+| `u` | Redo (`:redo`); plain `u` remains undo and native `<C-r>` remains redo |
 | `f` | Find files |
 | `F` | Fuzzy search current buffer |
 | `P` | Project history picker |

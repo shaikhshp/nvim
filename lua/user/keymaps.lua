@@ -42,6 +42,7 @@ local commands = {
     q = { "quit", "Quit window" },
     c = { "Bdelete", "Close buffer" },
     h = { "nohlsearch", "Clear search highlighting" },
+    u = { "redo", "Redo" },
     f = { "Telescope find_files", "Find files" },
     F = { "Telescope current_buffer_fuzzy_find", "Search current buffer" },
     P = { "Telescope projects", "Projects" },
