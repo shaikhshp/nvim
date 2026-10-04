@@ -25,20 +25,20 @@ This is a configuration to read and adapt, not a general-purpose Neovim distribu
 
 ## Features
 
-| Area | Configuration |
-| --- | --- |
-| Appearance | Catppuccin Mocha, Bufferline, Lualine, indentation guides, file icons, color highlighting, and an Alpha dashboard |
-| Navigation | Telescope file/text/buffer/project searches, NvimTree, and project.nvim |
-| Editing | Treesitter, automatic pairs and tags, context-aware comments, and reference highlighting |
-| Completion | nvim-cmp, LuaSnip, friendly-snippets, and LSP/buffer/path sources |
-| Language services | Native LSP configuration with Mason-managed tools and language-specific overrides |
-| Formatting | Conform, external-formatter preference, selected LSP fallback, and buffer/global save-format toggles |
-| Debugging | nvim-dap and DAP UI, with Python, Rust, and Java integration |
-| Git and terminals | Gitsigns, Telescope Git pickers, ToggleTerm, and a Lazygit terminal |
-| Documents | VimTeX with latexmk/zathura, Glow, and browser-based Markdown preview |
-| Notebooks | Jupytext percent-cell editing and explicit Molten kernel execution |
-| Local AI | Ollama-backed reviews, explanations, correction previews, CodeCompanion chat, and manual Minuet completion |
-| Other integrations | Discord Rich Presence through Cord, LeetCode, and vim-be-good |
+| Area               | Configuration                                                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Appearance         | Catppuccin Mocha, Bufferline, Lualine, indentation guides, file icons, color highlighting, and an Alpha dashboard |
+| Navigation         | Telescope file/text/buffer/project searches, NvimTree, and project.nvim                                           |
+| Editing            | Treesitter, automatic pairs and tags, context-aware comments, and reference highlighting                          |
+| Completion         | nvim-cmp, LuaSnip, friendly-snippets, and LSP/buffer/path sources                                                 |
+| Language services  | Native LSP configuration with Mason-managed tools and language-specific overrides                                 |
+| Formatting         | Conform, external-formatter preference, selected LSP fallback, and buffer/global save-format toggles              |
+| Debugging          | nvim-dap and DAP UI, with Python, Rust, and Java integration                                                      |
+| Git and terminals  | Gitsigns, Telescope Git pickers, ToggleTerm, and a Lazygit terminal                                               |
+| Documents          | VimTeX with latexmk/zathura, Glow, and browser-based Markdown preview                                             |
+| Notebooks          | Jupytext percent-cell editing and explicit Molten kernel execution                                                |
+| Local AI           | Ollama-backed reviews, explanations, correction previews, CodeCompanion chat, and manual Minuet completion        |
+| Other integrations | Discord Rich Presence through Cord, LeetCode, and vim-be-good                                                     |
 
 The editor defaults to four-space indentation, absolute and relative line numbers, wrapping, mouse support, splits below/right, persistent undo, and system clipboard integration. Swap files and backup/writebackup files are disabled. The terminal font must be configured separately; a Nerd Font is recommended for icons.
 
@@ -50,16 +50,16 @@ Both **leader and localleader are Space**. See [KEYMAPS.md](KEYMAPS.md) for the 
 
 ### Core Dependencies
 
-| Dependency | Purpose |
-| --- | --- |
-| Neovim 0.12+ | Modern native LSP and Treesitter APIs used by this configuration |
-| Git | Plugin-manager bootstrap and plugin installation |
-| `curl`, `tar`, and a C compiler | Treesitter parser downloads and builds |
-| Tree-sitter CLI 0.26.1+ | Modern Treesitter parser installation; verify the installed plugin's current requirements |
-| `ripgrep` (`rg`) | Telescope text search |
-| Node.js and npm | Node-based language tools and the Markdown preview build |
-| Clipboard provider | Access to the system clipboard through `unnamedplus` |
-| Nerd Font | Recommended for UI icons |
+| Dependency                      | Purpose                                                                                   |
+| ------------------------------- | ----------------------------------------------------------------------------------------- |
+| Neovim 0.12+                    | Modern native LSP and Treesitter APIs used by this configuration                          |
+| Git                             | Plugin-manager bootstrap and plugin installation                                          |
+| `curl`, `tar`, and a C compiler | Treesitter parser downloads and builds                                                    |
+| Tree-sitter CLI 0.26.1+         | Modern Treesitter parser installation; verify the installed plugin's current requirements |
+| `ripgrep` (`rg`)                | Telescope text search                                                                     |
+| Node.js and npm                 | Node-based language tools; optional npm fallback for browser Markdown preview             |
+| Clipboard provider              | Access to the system clipboard through `unnamedplus`                                      |
+| Nerd Font                       | Recommended for UI icons                                                                  |
 
 `fd` is an optional file-search improvement. Python 3.10+ with venv/pip support is recommended for the notebook provider and Python test scripts.
 
@@ -69,16 +69,17 @@ Check `tree-sitter --version` before installing parsers. Prefer the installation
 
 ### Feature Dependencies
 
-| Feature | Additional dependencies |
-| --- | --- |
-| Python | Project Python environment; Pyright/Ruff; Mason debugpy for debugging |
-| Rust | Rust/Cargo, Clippy, rustfmt; rust-analyzer; Mason codelldb for debugging |
-| Java | Compatible full JDK with `javac`; jdtls; Java debug/test bundles for those features |
-| LaTeX | TeX distribution, latexmk, zathura, ChkTeX, latexindent and its Perl dependencies; texcount for counting commands |
-| Markdown terminal preview | Glow executable |
-| Notebooks | Isolated Python provider, Jupytext, Jupyter dependencies, and registered kernels |
-| Local AI | curl, user-managed Ollama server, and an installed approved coder model |
-| Named terminals | `lazygit`, `node`, `ncdu`, `htop`, or `python`, depending on the terminal used |
+| Feature                   | Additional dependencies                                                                                                      |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Python                    | Project Python environment; Pyright/Ruff; Mason debugpy for debugging                                                        |
+| Rust                      | Rust/Cargo, Clippy, rustfmt; rust-analyzer; Mason codelldb for debugging                                                     |
+| Java                      | Compatible full JDK with `javac`; jdtls; Java debug/test bundles for those features                                          |
+| LaTeX                     | TeX distribution, latexmk, zathura, ChkTeX, latexindent and its Perl dependencies; texcount for counting commands            |
+| Markdown terminal preview | Glow executable                                                                                                              |
+| Markdown browser preview  | Plugin's prebuilt backend (downloaded by its install hook), or Node.js/npm fallback; graphical browser and system URL opener |
+| Notebooks                 | Isolated Python provider, Jupytext, Jupyter dependencies, and registered kernels                                             |
+| Local AI                  | curl, user-managed Ollama server, and an installed approved coder model                                                      |
+| Named terminals           | `lazygit`, `node`, `ncdu`, `htop`, or `python`, depending on the terminal used                                               |
 
 Install system dependencies with your preferred package manager or user-local tooling. The configuration does not run `sudo` or automatically provision a JDK, TeX distribution, kernel environment, or Ollama service.
 
@@ -117,7 +118,7 @@ Inside Neovim, install missing plugins and regenerate the loader:
 :PackerStatus
 ```
 
-Wait for installation/build operations to finish, then restart Neovim. Markdown browser preview runs an npm installation hook. Molten's remote-plugin registration needs the Python provider described in [Notebooks](#notebooks); repeat registration after setting up that provider.
+Wait for installation/build operations to finish, then restart Neovim. Markdown browser preview uses the plugin's synchronous prebuilt-backend installer. Molten's remote-plugin registration needs the Python provider described in [Notebooks](#notebooks); repeat registration after setting up that provider.
 
 The authoritative plugin specification is `lua/user/plugins.lua`. Some plugins are pinned; others follow upstream. This is not a fully locked dependency snapshot. `plugin/packer_compiled.lua` is generated locally and is intentionally not version-controlled.
 
@@ -162,24 +163,24 @@ Highlighting uses `vim.treesitter.start()` when a parser is available. CSS highl
 
 The following is a quick reference, not a replacement for [KEYMAPS.md](KEYMAPS.md). `<leader>` means Space; uppercase and lowercase keys are different.
 
-| Mapping | Action |
-| --- | --- |
-| `<leader>a` | Dashboard |
-| `<leader>e` | File explorer |
-| `<leader>f` | Find files |
-| `<leader>F` | Search current buffer |
-| `<leader>b` | Buffer picker |
-| `<leader>P` | Project picker |
-| `<leader>sg` | Live grep |
-| `<leader>w` / `<leader>q` | Write / quit current window |
-| `<leader>c` | Close buffer with Bdelete |
-| `<C-h/j/k/l>` | Move between windows |
-| `H` / `L` | Previous / next buffer |
-| `jk` / `kj` in Insert mode | Return to Normal mode |
-| `<leader>gg` | Lazygit terminal |
-| `<leader>gp` / `<leader>gs` | Preview / stage Git hunk |
-| `<leader>tf`, `th`, `tv` | Floating, horizontal, vertical terminal |
-| `<C-\>` | Toggle terminal |
+| Mapping                     | Action                                  |
+| --------------------------- | --------------------------------------- |
+| `<leader>a`                 | Dashboard                               |
+| `<leader>e`                 | File explorer                           |
+| `<leader>f`                 | Find files                              |
+| `<leader>F`                 | Search current buffer                   |
+| `<leader>b`                 | Buffer picker                           |
+| `<leader>P`                 | Project picker                          |
+| `<leader>sg`                | Live grep                               |
+| `<leader>w` / `<leader>q`   | Write / quit current window             |
+| `<leader>c`                 | Close buffer with Bdelete               |
+| `<C-h/j/k/l>`               | Move between windows                    |
+| `H` / `L`                   | Previous / next buffer                  |
+| `jk` / `kj` in Insert mode  | Return to Normal mode                   |
+| `<leader>gg`                | Lazygit terminal                        |
+| `<leader>gp` / `<leader>gs` | Preview / stage Git hunk                |
+| `<leader>tf`, `th`, `tv`    | Floating, horizontal, vertical terminal |
+| `<C-\>`                     | Toggle terminal                         |
 
 **Git actions can change your worktree.** `<leader>gr` resets a hunk and `<leader>gR` resets buffer changes. Telescope Git pickers include checkout and other modifying actions; consult the catalog before treating them as read-only previews.
 
@@ -189,35 +190,35 @@ Completion uses `<C-j>`/`<C-k>` for selection, `<C-Space>` to request completion
 
 Native Neovim LSP is the active language-service stack. Configuration uses `vim.lsp.config()` and `vim.lsp.enable()`, with nvim-lspconfig server definitions and overrides in `lua/user/lsp/settings/`.
 
-| Language / files | Configured server |
-| --- | --- |
-| Lua | `lua_ls` |
-| Python | `pyright`, `ruff` |
-| Rust | `rust_analyzer` |
-| Java | `jdtls`, started separately |
-| JavaScript / TypeScript | `ts_ls`, `eslint` |
-| HTML / CSS | `html`, `cssls` |
-| JSON | `jsonls` |
-| Shell | `bashls` |
-| C / C++ | `clangd` |
-| Markdown | `marksman` |
-| TeX / BibTeX | `texlab` |
-| Writing assistance | `grammarly` |
+| Language / files        | Configured server           |
+| ----------------------- | --------------------------- |
+| Lua                     | `lua_ls`                    |
+| Python                  | `pyright`, `ruff`           |
+| Rust                    | `rust_analyzer`             |
+| Java                    | `jdtls`, started separately |
+| JavaScript / TypeScript | `ts_ls`, `eslint`           |
+| HTML / CSS              | `html`, `cssls`             |
+| JSON                    | `jsonls`                    |
+| Shell                   | `bashls`                    |
+| C / C++                 | `clangd`                    |
+| Markdown                | `marksman`                  |
+| TeX / BibTeX            | `texlab`                    |
+| Writing assistance      | `grammarly`                 |
 
 Configured does not mean installed or attached. Only available configured executable commands are enabled. Check `:LspInfo`, `:Mason`, and `:checkhealth` when a feature is missing.
 
 ### Common LSP Mappings
 
-| Mapping | Action |
-| --- | --- |
-| `gd` / `gD` | Definition / declaration |
-| `gI` / `grr` | Implementation / references |
-| `K` | Hover |
-| `gl` | Diagnostic float |
-| `<leader>la` / `<leader>lr` | Code action / rename |
-| `<leader>lj` / `<leader>lk` | Next / previous diagnostic |
+| Mapping                     | Action                               |
+| --------------------------- | ------------------------------------ |
+| `gd` / `gD`                 | Definition / declaration             |
+| `gI` / `grr`                | Implementation / references          |
+| `K`                         | Hover                                |
+| `gl`                        | Diagnostic float                     |
+| `<leader>la` / `<leader>lr` | Code action / rename                 |
+| `<leader>lj` / `<leader>lk` | Next / previous diagnostic           |
 | `<leader>ld` / `<leader>lw` | Buffer / workspace diagnostic picker |
-| `<leader>lf` | Format buffer |
+| `<leader>lf`                | Format buffer                        |
 
 Attachment-specific mappings depend on an active server and its capabilities. Ordinary diagnostics use signs, underlines, rounded floats, and severity sorting; ordinary diagnostic virtual text is disabled. AI review hints are separate.
 
@@ -258,26 +259,26 @@ Each canonical project root gets a cache workspace with a basename and root hash
 
 `lua/user/formatting.lua` owns manual formatting and `BufWritePre` format-on-save. It skips special, readonly, or unmodifiable buffers, files over **1 MiB**, and names ending in lowercase `.ipynb`.
 
-| Filetype | External formatter policy |
-| --- | --- |
-| Python | Ruff format, then optional Black |
-| JavaScript / TypeScript / React variants | prettierd, then Prettier |
-| Rust | rustfmt |
-| TeX / plain TeX / BibTeX | latexindent |
-| Lua | StyLua |
-| Shell | shfmt |
-| JSON / JSONC / HTML / CSS / Markdown / YAML | Prettier |
-| C / C++ | clang-format |
+| Filetype                                    | External formatter policy        |
+| ------------------------------------------- | -------------------------------- |
+| Python                                      | Ruff format, then optional Black |
+| JavaScript / TypeScript / React variants    | prettierd, then Prettier         |
+| Rust                                        | rustfmt                          |
+| TeX / plain TeX / BibTeX                    | latexindent                      |
+| Lua                                         | StyLua                           |
+| Shell                                       | shfmt                            |
+| JSON / JSONC / HTML / CSS / Markdown / YAML | Prettier                         |
+| C / C++                                     | clang-format                     |
 
 Ordered alternatives mean **the first available formatter**, not a chain of all listed tools. Inspect availability with `:ConformInfo`.
 
 Formatting is synchronous with a **2000 ms timeout**. If no external formatter is available, one formatting-capable LSP client is selected, preferring Ruff for Python, rust-analyzer for Rust, jdtls for Java, and texlab for TeX/BibTeX; otherwise the lowest client ID wins. If Conform is missing, the helper attempts the selected LSP directly.
 
-| Mapping / command | Effect |
-| --- | --- |
-| `<leader>lf` | Format manually |
+| Mapping / command               | Effect                                 |
+| ------------------------------- | -------------------------------------- |
+| `<leader>lf`                    | Format manually                        |
 | `<leader>lF` or `:FormatToggle` | Toggle save formatting for this buffer |
-| `:FormatToggle!` | Toggle save formatting globally |
+| `:FormatToggle!`                | Toggle save formatting globally        |
 
 Either disable flag blocks format-on-save. Enabling one does not clear the other. Manual formatting ignores these save-disable flags but still respects buffer eligibility.
 
@@ -285,13 +286,13 @@ Either disable flag blocks format-on-save. Enabling one does not clear the other
 
 nvim-dap owns debugging, with DAP UI opening on launch/attach and closing on termination/exit. Install adapters explicitly with Mason; configuring a language server is not sufficient to debug it.
 
-| Mapping | Action |
-| --- | --- |
-| `<leader>dd` | Continue / start |
-| `<leader>db` | Toggle breakpoint |
-| `<leader>dB` | Conditional breakpoint |
+| Mapping                                    | Action                 |
+| ------------------------------------------ | ---------------------- |
+| `<leader>dd`                               | Continue / start       |
+| `<leader>db`                               | Toggle breakpoint      |
+| `<leader>dB`                               | Conditional breakpoint |
 | `<leader>di` / `<leader>do` / `<leader>dp` | Step into / out / over |
-| `<leader>du` | Toggle DAP UI |
+| `<leader>du`                               | Toggle DAP UI          |
 
 ### Python Debugging
 
@@ -332,7 +333,30 @@ Shell escape allows TeX to execute external commands. Do not enable it globally 
 
 ### Markdown
 
-Markdown buffers enable wrapping and spellcheck. Use `:Glow` or `<leader>|` for terminal preview after installing Glow. Browser preview uses `:MarkdownPreview`; its plugin build hook runs `npm install` in the plugin's `app` directory. There are no extra custom browser-preview mappings.
+Markdown buffers enable wrapping and spellcheck. Browser preview uses [iamcco/markdown-preview.nvim](https://github.com/iamcco/markdown-preview.nvim), with live updates and synchronized scrolling in your default graphical browser.
+
+The following Normal-mode mappings are **Markdown-buffer-local**; uppercase `M` keeps them separate from notebook mappings under lowercase `m`:
+
+| Mapping / command                       | Action                 |
+| --------------------------------------- | ---------------------- |
+| `<leader>Mp` / `:MarkdownPreviewToggle` | Toggle browser preview |
+| `<leader>Ms` / `:MarkdownPreviewStop`   | Stop browser preview   |
+| `:MarkdownPreview`                      | Start browser preview  |
+
+Preview starts only when requested. The server listens on localhost by default, and the URL is echoed in Neovim so it can also be opened manually. On Linux, automatic launch uses the system URL opener (`xdg-open`) unless you explicitly configure the plugin's browser override. A graphical browser/session is needed; remote/headless sessions may need a separate browser-opening arrangement. Upstream defaults close a buffer's preview when that Markdown buffer becomes hidden, not merely when focus moves to another window.
+
+The plugin is loaded at startup so its buffer-local commands are registered on the first Markdown filetype event. Its Packer hook calls `mkdp#util#install_sync()` to download and finish installing the upstream prebuilt backend, restores the working directory, and checks that the executable exists. If that hook failed or an older installation has no backend, repair it inside Neovim:
+
+```vim
+:call mkdp#util#install_sync()
+:PackerCompile
+```
+
+Restart afterward. The manual upstream installer can change the current window's working directory to the plugin's `app` directory; restore your project directory if continuing without a restart. `:PackerCompile` also reconciles the package location when migrating an older filetype-lazy installation; no bulk plugin update is needed. An already-installed plugin may not rerun its install hook, so the explicit installer command above repairs an incomplete backend.
+
+If prebuilt binaries are unavailable for your platform, the supported alternative is `npm install` in **this plugin's `app` directory**, using Node.js/npm. Do not run it in this configuration repository. Without either a working prebuilt executable or installed app dependencies, the backend cannot start. Inspect `:messages` for errors and the echoed preview URL for browser-opening problems.
+
+The separate terminal preview remains unchanged: use `:Glow` or `<leader>|` after installing Glow. See [KEYMAPS.md](KEYMAPS.md#markdown-preview) for the browser-preview mappings.
 
 ## Notebooks
 
@@ -381,17 +405,17 @@ Opening `.ipynb` displays Python in `py:percent` format. Jupytext uses `update =
 
 Mappings are buffer-local to `.ipynb`. Ordinary scripts opt in with `:NotebookEnable`. Neither opening a notebook nor enabling mappings starts a kernel or evaluates code.
 
-| Mapping | Action |
-| --- | --- |
-| `<leader>mi` | Initialize and select a registered kernel |
-| `<leader>me{motion}` | Evaluate motion |
-| `<leader>ml` | Evaluate line |
-| Visual `<leader>mv` | Evaluate selection |
-| `<leader>mc` | Reevaluate an existing Molten region |
-| `<leader>mo` | Show/enter active output window |
-| `<leader>mq` | Hide output window |
-| `<leader>md` | Delete Molten cell state, not source text |
-| `<leader>mx` | Interrupt execution |
+| Mapping              | Action                                    |
+| -------------------- | ----------------------------------------- |
+| `<leader>mi`         | Initialize and select a registered kernel |
+| `<leader>me{motion}` | Evaluate motion                           |
+| `<leader>ml`         | Evaluate line                             |
+| Visual `<leader>mv`  | Evaluate selection                        |
+| `<leader>mc`         | Reevaluate an existing Molten region      |
+| `<leader>mo`         | Show/enter active output window           |
+| `<leader>mq`         | Hide output window                        |
+| `<leader>md`         | Delete Molten cell state, not source text |
+| `<leader>mx`         | Interrupt execution                       |
 
 Molten regions are evaluated ranges, not automatically discovered `# %%` cells. Output is text-only with virtual text enabled; images/HTML and automatic output-window opening are disabled. Kernel initialization is always explicit.
 
@@ -426,11 +450,11 @@ ollama list
 
 Only these exact installed tags are accepted:
 
-| Tag | Notes |
-| --- | --- |
-| `qwen2.5-coder:3b` | Default |
-| `qwen2.5-coder:7b` | Larger alternative |
-| `qwen2.5-coder:3b-8k` | Must already exist locally to select |
+| Tag                    | Notes                                |
+| ---------------------- | ------------------------------------ |
+| `qwen2.5-coder:3b`     | Default                              |
+| `qwen2.5-coder:7b`     | Larger alternative                   |
+| `qwen2.5-coder:3b-8k`  | Must already exist locally to select |
 | `qwen2.5-coder:7b-16k` | Must already exist locally to select |
 
 Unknown, shorthand, uninstalled, and remote-metadata-marked tags are rejected without automatic fallback. `:AIModel` or `<leader>Am` opens the picker; `:AIModel qwen2.5-coder:7b` selects explicitly. Selection is session-local, shared by review/completion, and cancels previous work.
@@ -441,17 +465,17 @@ Loopback Ollama can itself host cloud-backed models. This integration checks the
 
 ### Actions and Scope
 
-| Mapping / command | Action |
-| --- | --- |
-| Normal/Visual `<leader>Ac` | Open chat with explicit context, initially unsent |
-| Normal/Visual `<leader>Ae` | Explain scope/diagnostics in a scratch window |
-| Normal/Visual `<leader>Ar` | Review scope |
-| Normal `<leader>Ab` | Review eligible buffer |
-| Normal/Visual `<leader>Af` | Propose correction in scratch diffs |
-| `<leader>Ad` | Cancel and clear current-buffer AI hints |
-| `<leader>Ax` | Cancel pending work without clearing existing hints |
-| `:AIToggle` | Toggle current-buffer AI eligibility |
-| `:AIContext file` / `:AIContext!` | Attach project-file snapshot / clear attachments |
+| Mapping / command                 | Action                                              |
+| --------------------------------- | --------------------------------------------------- |
+| Normal/Visual `<leader>Ac`        | Open chat with explicit context, initially unsent   |
+| Normal/Visual `<leader>Ae`        | Explain scope/diagnostics in a scratch window       |
+| Normal/Visual `<leader>Ar`        | Review scope                                        |
+| Normal `<leader>Ab`               | Review eligible buffer                              |
+| Normal/Visual `<leader>Af`        | Propose correction in scratch diffs                 |
+| `<leader>Ad`                      | Cancel and clear current-buffer AI hints            |
+| `<leader>Ax`                      | Cancel pending work without clearing existing hints |
+| `:AIToggle`                       | Toggle current-buffer AI eligibility                |
+| `:AIContext file` / `:AIContext!` | Attach project-file snapshot / clear attachments    |
 
 Normal scoped actions use the enclosing Treesitter function/method when available, otherwise the cursor plus up to 20 lines on either side. Visual actions use **all full lines touched**, including character/block selections; they are not partial-character replacements. There is no AI operator-pending mapping. Uppercase `A` preserves lowercase `<leader>a` for the dashboard.
 
@@ -487,13 +511,13 @@ The custom chat transport is asynchronous and nonstreaming (`stream = false`), s
 
 Insert-mode completion is separate from cmp and manual-only:
 
-| Mapping | Action |
-| --- | --- |
-| `<M-y>` | Request / next suggestion |
+| Mapping           | Action                                                 |
+| ----------------- | ------------------------------------------------------ |
+| `<M-y>`           | Request / next suggestion                              |
 | `<M-]>` / `<M-[>` | Next / previous suggestion; request if none is visible |
-| `<M-CR>` | Accept suggestion |
-| `<M-l>` | Accept one line |
-| `<M-x>` | Dismiss/cancel completion |
+| `<M-CR>`          | Accept suggestion                                      |
+| `<M-l>`           | Accept one line                                        |
+| `<M-x>`           | Dismiss/cancel completion                              |
 
 `<M-...>` means Alt/Meta and depends on terminal key handling. `<M-e>` remains Autopairs fast wrap, and cmp retains its own `<C-e>` and Tab behavior. Completion checks origin buffer/window/cursor, changedtick, and Insert mode. Cancelling a client request does not guarantee immediate server-side model-resource release.
 
@@ -545,16 +569,16 @@ Keep new feature setup under `lua/user/` and require startup modules from `init.
 
 Common customization locations:
 
-| Change | File |
-| --- | --- |
-| Theme | `lua/user/colorscheme.lua` |
-| Editor options | `lua/user/options.lua` |
-| Global mappings | `lua/user/keymaps.lua` |
-| Which-key group labels | `lua/user/whichkey.lua` |
-| Plugins and versions | `lua/user/plugins.lua` |
-| Server-specific settings | `lua/user/lsp/settings/` |
-| Formatters and policy | `lua/user/formatting.lua` |
-| Discord/LeetCode | `lua/user/workflow.lua` and plugin declarations |
+| Change                   | File                                            |
+| ------------------------ | ----------------------------------------------- |
+| Theme                    | `lua/user/colorscheme.lua`                      |
+| Editor options           | `lua/user/options.lua`                          |
+| Global mappings          | `lua/user/keymaps.lua`                          |
+| Which-key group labels   | `lua/user/whichkey.lua`                         |
+| Plugins and versions     | `lua/user/plugins.lua`                          |
+| Server-specific settings | `lua/user/lsp/settings/`                        |
+| Formatters and policy    | `lua/user/formatting.lua`                       |
+| Discord/LeetCode         | `lua/user/workflow.lua` and plugin declarations |
 
 Update [KEYMAPS.md](KEYMAPS.md) when changing mappings. Lua uses four-space indentation and double quotes, with formatting controlled by `.stylua.toml`.
 
@@ -582,12 +606,12 @@ nvim --headless -u NONE -i NONE -l tests/formatting_config.lua
 lua tests/notebook_config.lua
 ```
 
-| Check | Coverage |
-| --- | --- |
-| Startup smoke | Loads the installed configuration; distinguish missing-plugin warnings from runtime errors |
-| AI configuration | Synthetic/stubbed startup, eligibility/context/model guards, separate hints, stale callbacks, correction acceptance, and manual completion |
-| Formatting configuration | Stubbed formatter ordering, LSP fallback, toggles, exclusions, and errors |
-| Notebook configuration | Stubbed provider/plugin guards, settings, mapping scope, and explicit initialization |
+| Check                    | Coverage                                                                                                                                   |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Startup smoke            | Loads the installed configuration; distinguish missing-plugin warnings from runtime errors                                                 |
+| AI configuration         | Synthetic/stubbed startup, eligibility/context/model guards, separate hints, stale callbacks, correction acceptance, and manual completion |
+| Formatting configuration | Stubbed formatter ordering, LSP fallback, toggles, exclusions, and errors                                                                  |
+| Notebook configuration   | Stubbed provider/plugin guards, settings, mapping scope, and explicit initialization                                                       |
 
 The isolated AI test makes no real process/network requests. The startup smoke test is not an isolated first-install test: if Packer is missing, normal startup can bootstrap it.
 
@@ -620,22 +644,22 @@ Schema validation and integration success are not model-accuracy tests. Performa
 
 ## Troubleshooting
 
-| Symptom | What to check |
-| --- | --- |
-| Missing icons or incorrect glyphs | Select a Nerd Font in your terminal; the GUI font option does not configure terminal fonts |
-| Clipboard unavailable | `:checkhealth` and an installed clipboard provider appropriate to your session |
-| Plugin feature missing | `:PackerStatus`, installation/build output, generated loader, and restart after installation |
-| LSP not attached | `:LspInfo`, `:Mason`, executable availability, filetype, and project root |
-| Treesitter highlighting missing | CLI/compiler versions, parser installation, and `:checkhealth`; CSS is deliberately excluded |
-| Formatting not running | `:ConformInfo`, formatter/LSP availability, both save-disable flags, buffer size/type, and timeout |
-| Java not attached | Recognized root, jdtls executable, compatible full JDK, `JAVA_HOME`, and launcher requirements |
-| Debug launch fails | Adapter installation, target interpreter/toolchain, Java bundles, or Cargo build/artifact output |
-| Notebook opens as JSON | Provider/Jupytext paths and executable availability; restart after correcting dependencies |
-| Molten commands missing | Provider dependencies, `:UpdateRemotePlugins`, restart, and provider/Molten health checks |
-| Notebook output absent or stale | Explicit kernel initialization/import; saving does not export live results, and retained results may be stale |
-| AI unavailable | Local Ollama/curl availability, exact installed tag, eligibility/context limits, and buffer AI-disable flag |
-| Alt completion keys not received | Terminal key encoding; verify Alt/Meta and Alt-Enter support |
-| Removed plugin still active | Old local start-package directories; removing a declaration alone does not uninstall a package |
+| Symptom                           | What to check                                                                                                 |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Missing icons or incorrect glyphs | Select a Nerd Font in your terminal; the GUI font option does not configure terminal fonts                    |
+| Clipboard unavailable             | `:checkhealth` and an installed clipboard provider appropriate to your session                                |
+| Plugin feature missing            | `:PackerStatus`, installation/build output, generated loader, and restart after installation                  |
+| LSP not attached                  | `:LspInfo`, `:Mason`, executable availability, filetype, and project root                                     |
+| Treesitter highlighting missing   | CLI/compiler versions, parser installation, and `:checkhealth`; CSS is deliberately excluded                  |
+| Formatting not running            | `:ConformInfo`, formatter/LSP availability, both save-disable flags, buffer size/type, and timeout            |
+| Java not attached                 | Recognized root, jdtls executable, compatible full JDK, `JAVA_HOME`, and launcher requirements                |
+| Debug launch fails                | Adapter installation, target interpreter/toolchain, Java bundles, or Cargo build/artifact output              |
+| Notebook opens as JSON            | Provider/Jupytext paths and executable availability; restart after correcting dependencies                    |
+| Molten commands missing           | Provider dependencies, `:UpdateRemotePlugins`, restart, and provider/Molten health checks                     |
+| Notebook output absent or stale   | Explicit kernel initialization/import; saving does not export live results, and retained results may be stale |
+| AI unavailable                    | Local Ollama/curl availability, exact installed tag, eligibility/context limits, and buffer AI-disable flag   |
+| Alt completion keys not received  | Terminal key encoding; verify Alt/Meta and Alt-Enter support                                                  |
+| Removed plugin still active       | Old local start-package directories; removing a declaration alone does not uninstall a package                |
 
 Useful health commands include `:checkhealth`, `:checkhealth provider`, and `:checkhealth molten` where supported by the installed versions. Read warnings rather than treating a successful launch as proof that every integration is ready.
 

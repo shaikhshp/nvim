@@ -59,7 +59,18 @@ All keys below are **Normal mode** and prefixed with `<Space>`. Source: `user.ke
 | `sC` | Commands |
 | `sg` | Live grep project text (needs `rg`) |
 
-Project.nvim changes the working directory automatically using root patterns; file/search commands use the resulting context. Markdown browser preview is available as `:MarkdownPreview`, without a custom key here.
+Project.nvim changes the working directory automatically using root patterns; file/search commands use the resulting context. Markdown browser preview has buffer-local mappings documented below.
+
+## Markdown Preview
+
+Source: `lua/user/documents.lua`. These mappings are **Normal-mode and Markdown-buffer-local**. Uppercase `<Space>M` is separate from lowercase notebook `<Space>m`, Packer `<Space>p`, and existing search bindings. Glow's `<Space>\|` terminal preview is unchanged.
+
+| Mode | Keys | Command / Action |
+| --- | --- | --- |
+| n | `<Space>Mp` | `MarkdownPreviewToggle`: start/stop browser preview |
+| n | `<Space>Ms` | `MarkdownPreviewStop`: stop browser preview |
+
+`:MarkdownPreview` starts preview explicitly. The plugin updates the browser as you edit, echoes its localhost URL, and uses the default graphical browser/system opener unless overridden. Opening Markdown alone does not launch preview. Upstream defaults close a buffer's preview when the Markdown buffer becomes hidden. The plugin's backend must be installed; see [README.md](README.md#markdown) for setup and repair instructions.
 
 ## Language And Diagnostics
 
@@ -410,7 +421,7 @@ Alpha-local **Normal** buttons from `user.alpha` do not use leader:
 | `c` | Edit `$MYVIMRC` |
 | `q` | Quit Neovim (`:qa`) |
 
-`user.autocommands` maps **Normal `q`** buffer-locally to close quickfix, help, man, and lspinfo windows. Bufferline mouse actions (`user.bufferline`) select on left-click and `Bdelete` on right-click/close. Cord, LeetCode, Markdown browser preview, and vim-be-good have no additional custom keyboard maps in their config modules; consult their own commands/defaults rather than assuming leader bindings.
+`user.autocommands` maps **Normal `q`** buffer-locally to close quickfix, help, man, and lspinfo windows. Bufferline mouse actions (`user.bufferline`) select on left-click and `Bdelete` on right-click/close. Cord, LeetCode, and vim-be-good have no additional custom keyboard maps in their config modules; consult their own commands/defaults rather than assuming leader bindings.
 
 ## Other Plugin Defaults
 
@@ -489,4 +500,4 @@ In Insert mode, backtick-prefixed shorthands expand math symbols and Greek lette
 | LeetCode back/exit | `q` / `qa` | Back / exit Neovim |
 | VimBeGood Snake | `h/j/k/l` | Snake direction |
 
-VimBeGood's menu selects entries by native deletion (for example `dd`); other games observe native edits. Markdown browser preview exposes commands and `<Plug>` targets without assigning physical launch keys. Cord and Notify have no physical default launcher/dismiss shortcut configured here. This catalog does not enumerate all native Vim commands, external terminal programs, PDF viewers, or browser controls.
+VimBeGood's menu selects entries by native deletion (for example `dd`); other games observe native edits. Markdown browser preview exposes commands and `<Plug>` targets; the custom physical keys are listed in the Markdown Preview section. Cord and Notify have no physical default launcher/dismiss shortcut configured here. This catalog does not enumerate all native Vim commands, external terminal programs, PDF viewers, or browser controls.
