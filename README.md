@@ -534,7 +534,7 @@ Local AI transport does **not** make the entire configuration offline or private
 
 Review `lua/user/workflow.lua`, the plugin specification, and enabled language services before adopting the configuration. Avoid sharing local test reports or generated files without inspecting them for paths, process information, and content.
 
-Cord displays `Idling` after five minutes of inactivity, with a sleeping-emoji idle tooltip. Activity or regaining focus clears ordinary idle, provided the terminal/GUI delivers focus events. Smart idle favors another active Cord instance over an idle one. See [KEYMAPS.md](KEYMAPS.md#discord-presence) for the presence controls.
+Cord's automatic idle detection is disabled. See [KEYMAPS.md](KEYMAPS.md#discord-presence) for the presence controls.
 
 ## Customization
 

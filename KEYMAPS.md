@@ -432,9 +432,9 @@ Source: `lua/user/workflow.lua`. Requires Cord. The uppercase key does not confl
 | --- | --- | --- |
 | n | `<Space>D` | `Cord presence toggle`: hide/clear Neovim's Discord activity, or resume it |
 
-Use this before gaming to remove Neovim's presence; press it again to restore the current activity. Hiding pauses updates and idle detection, so focus changes do not automatically reenable it. This is a session-local toggle, not a saved preference. Other running Neovim instances can publish their own Cord activity independently.
+Use this before gaming to remove Neovim's presence; press it again to restore the current activity. Hiding pauses updates, so focus changes do not automatically reenable it. This is a session-local toggle, not a saved preference. Other running Neovim instances can publish their own Cord activity independently.
 
-Cord shows `Idling` after five minutes of inactivity, with a sleeping-emoji idle-image tooltip. Activity or a received `FocusGained` event clears ordinary idle. Smart idle prefers another active Cord instance over this instance's idle presence. Terminal/GUI focus-event support is required for focus-return detection. `:Cord presence hide` and `:Cord presence show` explicitly hide/restore presence; this is separate from toggling the idle feature.
+Automatic idle detection is disabled. `:Cord presence hide` and `:Cord presence show` explicitly hide/restore presence.
 
 ## Other Plugin Defaults
 

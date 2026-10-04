@@ -1,16 +1,7 @@
 local cord_ok, cord = pcall(require, "cord")
 if cord_ok then
     cord.setup({
-        idle = {
-            enabled = true,
-            timeout = 300000,
-            show_status = true,
-            ignore_focus = true,
-            unidle_on_focus = true,
-            smart_idle = true,
-            details = "Idling",
-            tooltip = "\u{1F4A4} Idle",
-        },
+        idle = { enabled = false },
         advanced = { discord = { reconnect = { enabled = true, initial = true, interval = 5000 } } },
     })
     vim.keymap.set("n", "<leader>D", "<cmd>Cord presence toggle<CR>", {
