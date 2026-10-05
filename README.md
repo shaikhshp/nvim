@@ -10,6 +10,7 @@ This is a configuration to read and adapt, not a general-purpose Neovim distribu
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Everyday Use](#everyday-use)
+- [Sessions](#sessions)
 - [Language Support](#language-support)
 - [Formatting](#formatting)
 - [Debugging](#debugging)
@@ -29,6 +30,7 @@ This is a configuration to read and adapt, not a general-purpose Neovim distribu
 | ------------------ | ----------------------------------------------------------------------------------------------------------------- |
 | Appearance         | Catppuccin Mocha, Bufferline, Lualine, indentation guides, file icons, color highlighting, and an Alpha dashboard |
 | Navigation         | Telescope file/text/buffer/project searches, NvimTree, and project.nvim                                           |
+| Sessions           | Persistence saves editing layouts on exit; Alpha restores directory or last sessions |
 | Editing            | Treesitter, automatic pairs and tags, context-aware comments, and reference highlighting                          |
 | Completion         | nvim-cmp, LuaSnip, friendly-snippets, and LSP/buffer/path sources                                                 |
 | Language services  | Native LSP configuration with Mason-managed tools and language-specific overrides                                 |
@@ -185,6 +187,37 @@ The following is a quick reference, not a replacement for [KEYMAPS.md](KEYMAPS.m
 **Git actions can change your worktree.** `<leader>gr` resets a hunk and `<leader>gR` resets buffer changes. Telescope Git pickers include checkout and other modifying actions; consult the catalog before treating them as read-only previews.
 
 Completion uses `<C-j>`/`<C-k>` for selection, `<C-Space>` to request completion, and `<C-e>` to abort. Enter confirms an explicitly selected item. Tab/Shift-Tab navigate completion and snippets. Autopairs fast wrap uses `<M-e>` (Alt-e).
+
+## Sessions
+
+[persistence.nvim](https://github.com/folke/persistence.nvim) saves the active editing layout on **normal Neovim exit**. It starts with the configuration, but never restores a session automatically. There is no periodic or per-write session save.
+
+Open the Alpha dashboard with `<leader>a`:
+
+| Dashboard key | Action |
+| --- | --- |
+| `s` | Restore the saved session for the current working directory/Git branch |
+| `l` | Restore the most recently saved session across directories |
+
+These keys are dashboard-local and do not replace normal editing mappings. A missing session is a no-op. The directory action can fall back to a branchless session for the same directory, but does not fall back to another directory's last session. `main` and `master` use the branchless name; other branches have separate sessions when `.git` exists directly in the working directory.
+
+Sessions live under `stdpath("state")/sessions/`, outside this repository. They are keyed by the current working directory, not independent project-root detection; project.nvim's automatic directory changes affect which session is saved/restored. Two instances using the same directory/branch can overwrite the same session; the last save wins.
+
+The session includes file buffers (including hidden buffers), working directory, folds, tabs, split sizes, and cursor positions. Terminal commands, help/unnamed windows, and option/mapping state are excluded from the configured `sessionoptions`. Native sessions do not preserve notebook kernels/results, DAP processes, or AI conversations; special plugin windows are not guaranteed to restore their plugin state.
+
+At least one named normal buffer must exist for automatic saving, so a fresh dashboard-only launch followed by quit does not overwrite an existing session. Returning to the dashboard after opening files can still save, because hidden file buffers count. Each save replaces that directory/branch's previous session; this is not versioned history or crash recovery.
+
+**Sessions are not backups of unsaved text.** Session saving does not write source files. Save important edits before quitting or restoring another layout; force-quitting can still lose changes. Session files are executable Vim scripts sourced during restore, so load only trusted local sessions and protect their directory.
+
+Optional controls from any buffer:
+
+```vim
+:lua require("persistence").save()
+:lua require("persistence").stop()
+:lua require("persistence").start()
+```
+
+`save()` saves immediately and bypasses the minimum-buffer safeguard. `stop()` disables exit saving for this Neovim process without deleting existing sessions; `start()` resumes it. Loading a session does not undo `stop()`. Install the declared plugin with `:PackerInstall`, run `:PackerCompile`, and restart after adopting this configuration. Setup lives in `lua/user/persistence.lua`.
 
 ## Language Support
 
@@ -547,6 +580,7 @@ lua/user/
   keymaps.lua              Global mappings
   plugins.lua              Packer declarations and pins
   formatting.lua           Manual/save formatting policy
+  persistence.lua          Session saving and native restore scope
   python.lua               Remote provider and project interpreter resolution
   lsp/                     Native LSP setup, handlers, and server overrides
   ai/                      Local transport, context, review, chat, completion
@@ -605,6 +639,7 @@ There is no general build/CI pipeline. Focused checks live under `tests/`; run t
 nvim --headless '+quit'
 nvim --headless -u NONE -i NONE -l tests/ai_config.lua
 nvim --headless -u NONE -i NONE -l tests/formatting_config.lua
+nvim --headless -u NONE -i NONE -l tests/persistence_config.lua
 lua tests/notebook_config.lua
 ```
 
@@ -613,6 +648,7 @@ lua tests/notebook_config.lua
 | Startup smoke            | Loads the installed configuration; distinguish missing-plugin warnings from runtime errors                                                 |
 | AI configuration         | Synthetic/stubbed startup, eligibility/context/model guards, separate hints, stale callbacks, correction acceptance, and manual completion |
 | Formatting configuration | Stubbed formatter ordering, LSP fallback, toggles, exclusions, and errors                                                                  |
+| Persistence configuration | Stubbed missing-plugin guard, session options, exit-save setup, and dashboard restore actions |
 | Notebook configuration   | Stubbed provider/plugin guards, settings, mapping scope, and explicit initialization                                                       |
 
 The isolated AI test makes no real process/network requests. The startup smoke test is not an isolated first-install test: if Packer is missing, normal startup can bootstrap it.
