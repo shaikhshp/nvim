@@ -80,7 +80,7 @@ local function source()
     assert(ok, err)
 end
 source()
-assert(#systems == 0 and #specs == 57, "Installed manager must not provision anything")
+assert(#systems == 0 and #specs == 60, "Installed manager must not provision anything")
 assert(options.defaults.lazy == false and options.defaults.version == false)
 assert(options.install.missing == false and options.checker.enabled == false)
 assert(options.local_spec == false and options.pkg.enabled == false and options.rocks.enabled == false)

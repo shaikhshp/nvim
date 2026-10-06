@@ -37,7 +37,6 @@ local commands = {
     a = { "Alpha", "Dashboard" },
     b = { "Telescope buffers", "Buffers" },
     T = { "Telescope", "Telescope" },
-    e = { "NvimTreeToggle", "Explorer" },
     w = { "write", "Save" },
     q = { "quit", "Quit window" },
     c = { "Bdelete", "Close buffer" },
@@ -79,6 +78,21 @@ local commands = {
 for key, entry in pairs(commands) do
     map("n", "<leader>" .. key, "<cmd>" .. entry[1] .. "<CR>", entry[2])
 end
+map("n", "<leader>e", function()
+    require("user.sidebar").tree_toggle()
+end, "Explorer")
+map("n", "<leader>ot", function()
+    require("user.sidebar").outline_toggle()
+end, "Toggle code outline")
+map("n", "<leader>of", function()
+    require("user.sidebar").outline_open(true)
+end, "Open or focus code outline")
+map("n", "<leader>on", function()
+    require("user.sidebar").outline_move(true)
+end, "Next outline symbol")
+map("n", "<leader>op", function()
+    require("user.sidebar").outline_move(false)
+end, "Previous outline symbol")
 for key, entry in pairs({
     gj = { "next_hunk", "Next hunk" },
     gk = { "prev_hunk", "Previous hunk" },

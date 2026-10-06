@@ -34,7 +34,7 @@ All keys below are **Normal mode** and prefixed with `<Space>`. Source: `user.ke
 | `a`  | Alpha dashboard                                                        |
 | `b`  | Telescope buffers                                                      |
 | `T`  | Telescope picker command                                               |
-| `e`  | Toggle NvimTree                                                        |
+| `e`  | Toggle NvimTree via sidebar; in review tabs, guide to `gT`             |
 | `w`  | Write current buffer                                                   |
 | `q`  | Quit window (`:quit`, not force quit)                                  |
 | `c`  | Close buffer with `:Bdelete`                                           |
@@ -48,8 +48,8 @@ All keys below are **Normal mode** and prefixed with `<Space>`. Source: `user.ke
 | `pc` | `:Lazy check`: check updates (Git fetch; not compilation)              |
 | `pi` | Install plugins from lockfile (explicit locked API; see below)         |
 | `ps` | `:Lazy sync`: clean unused plugins, install/update; change lockfile    |
-| `pS` | `:Lazy`: open plugin manager                                          |
-| `pu` | `:Lazy update`: intentional upgrades; preserve pins, change lockfile  |
+| `pS` | `:Lazy`: open plugin manager                                           |
+| `pu` | `:Lazy update`: intentional upgrades; preserve pins, change lockfile   |
 | `sb` | Git branches (same picker as `gb`)                                     |
 | `sc` | Colorschemes                                                           |
 | `sh` | Help tags                                                              |
@@ -63,6 +63,63 @@ All keys below are **Normal mode** and prefixed with `<Space>`. Source: `user.ke
 Project.nvim changes the working directory automatically using root patterns; file/search commands use the resulting context. Markdown browser preview has buffer-local mappings documented below.
 
 `pi` runs `:lua require('lazy').install({ lockfile = true })` with description "Install plugins from lockfile", honoring existing `lazy-lock.json` entries for missing plugins. Bare `:Lazy install` uses spec targets and can choose newer unpinned revisions; plugins without lockfile entries fall back to spec targets even with the locked API, so new-plugin installation is explicit and deliberate. `:Lazy restore` (no custom mapping) restores already-installed plugins to the current lockfile but does not install missing plugins. Both install forms and restore rewrite the lockfile from installed checkouts: preserve the original baseline before recovering a mixed/drifted installation and follow the [README installation guidance](README.md#installation), including restoring that baseline and restarting between install and restore. **`ps` can remove unused Lazy-managed plugins**, unlike the previous Packer no-auto-clean policy; it is not a reload or baseline restore. There is no compile command.
+
+## Outline And Undo
+
+Sources: `user.keymaps`, `user.sidebar`, `user.aerial`, `user.undotree`. These are **Normal-mode** leader mappings; they add no new non-leader source-motion overrides.
+
+| Mode | Keys                     | Action                                 |
+| ---- | ------------------------ | -------------------------------------- |
+| n    | `<Space>ot`              | Toggle outline, returning to source    |
+| n    | `<Space>of`              | Open or focus outline                  |
+| n    | `<Space>on`, `<Space>op` | Next/previous outline symbol in source |
+| n    | `<Space>Ut`              | Toggle source undo tree                |
+| n    | `<Space>Uf`              | Open or focus source undo tree         |
+
+Aerial attaches globally and follows the most recently visited eligible visible source window in the current editing tab, ignoring special/floating and diff windows. It never opens automatically and does not manage source folds. Tree above outline shares one left column, configured to 30 columns, in either opening order. Manual resizing is available; reconciliation/terminal resizing can reapply configured dimensions. Aerial's native `<C-j>`/`<C-k>` mappings are disabled, preserving global window focus there; NvimTree's existing `<C-k>` exception is unchanged.
+
+These are the retained **Aerial-local Normal defaults**, not source-buffer mappings:
+
+| Keys                      | Action                                                                                |
+| ------------------------- | ------------------------------------------------------------------------------------- |
+| `<CR>`, double left-click | Jump to selected symbol                                                               |
+| `<C-v>`, `<C-s>`          | Jump in vertical / horizontal split                                                   |
+| `p`                       | Scroll source to selected symbol                                                      |
+| `{`, `}`                  | Previous / next symbol                                                                |
+| `[[`, `]]`                | Previous / next higher-level symbol                                                   |
+| `q`                       | Close outline                                                                         |
+| `?`, `g?`                 | Show outline help                                                                     |
+| `o`, `za`                 | Toggle node expansion                                                                 |
+| `O`, `zA`                 | Toggle node expansion recursively                                                     |
+| `l`, `zo`                 | Expand node                                                                           |
+| `L`, `zO`                 | Expand node recursively                                                               |
+| `h`, `zc`                 | Collapse node                                                                         |
+| `H`, `zC`                 | Collapse node recursively                                                             |
+| `zr`, `zm`                | Increase / decrease outline expansion level                                           |
+| `zR`, `zM`                | Expand / collapse all nodes                                                           |
+| `zx`, `zX`                | Source-fold synchronization; inactive unless the source uses Aerial's fold expression |
+
+Outline `H`/`L` are expansion controls instead of global buffer navigation. Source folding ownership remains unchanged.
+
+Undotree requires a named, normal, writable/modifiable visible source file. Its bottom row defaults to 12 lines, clamped to one third of terminal height (at least one line). Native **Undotree-local Normal `D`** toggles the optional diff panel to the right in that same bottom row; automatic diff opening is disabled. The external `diff` command is required for that panel. Undo-state selection can change source text: existing persistent undo is not a backup, and these panels add no autosave.
+
+These are **Undotree-local Normal defaults** from the pinned plugin:
+
+| Keys                      | Action                                                         |
+| ------------------------- | -------------------------------------------------------------- |
+| `<CR>`, double left-click | Restore selected undo state in source                          |
+| `u`, `<C-r>`              | Undo / redo source change                                      |
+| `J`, `K`                  | Earlier / later undo state                                     |
+| `<`, `>`                  | Earlier / later saved state                                    |
+| `<Tab>`                   | Focus source editor                                            |
+| `D`                       | Toggle optional diff panel                                     |
+| `=`, `M`                  | Set / clear diff comparison marker                             |
+| `T`                       | Toggle relative timestamps                                     |
+| `?`                       | Toggle quick help                                              |
+| `q`                       | Close undo panel                                               |
+| `C`                       | **Clear all undo history**, requiring typed `YES` confirmation |
+
+Plain `j`/`k` move within the undo graph. These defaults do not change source-buffer `u`/`<C-r>` or global `<Space>u` redo.
 
 ## Markdown Preview
 
@@ -200,6 +257,46 @@ Global **Normal-mode** mappings from `user.keymaps`. Gitsigns is configured in `
 | `<Space>gu`              | Undo staged hunk                                        |
 
 Hunk mappings are Normal-only; there is no custom Visual-range staging/reset mapping. Do not use these against the Python display of notebook JSON. There are no extra custom `[c`/`]c` mappings outside NvimTree.
+
+### Diffview Review
+
+Source: `user.diffview`. Requires Git 2.31+. Global **Normal-mode** entry mappings are separate from lowercase `<Space>gd` (Gitsigns):
+
+| Keys        | Action                                                         |
+| ----------- | -------------------------------------------------------------- |
+| `<Space>gD` | Review project against HEAD, including staged/unstaged changes |
+| `<Space>gF` | Review current source file against HEAD                        |
+| `<Space>gh` | Review current source file history                             |
+| `<Space>gH` | Review project history                                         |
+| `<Space>gQ` | Close Diffview review                                          |
+
+File-scoped actions resolve the remembered eligible visible source filename and pass it safely as an API argument, not an interpolated Ex command. Project actions use the source repository context when available, otherwise the current working directory. Review tabs are marked and keep their own sidebar separate from the editing tab's Tree/outline; `<Space>e` there only guides you to `<Space>gT`.
+
+`<Space>gQ` tracks active file-open operations, including cached-entry revisits, and refuses to close while revision content/history is loading. Retry when loaded to avoid an early-close race in the pinned release. Raw `:DiffviewClose` or tab-closing commands do not include this guard.
+
+Project working-tree reviews exclude `.ipynb`; file-scoped working-tree review refuses notebook buffers because their displayed Python differs from Git JSON. Historical notebook comparisons remain available as JSON. Use notebook-aware tools for working-tree changes; raw Diffview commands bypass these exclusions.
+
+Diffview's default mappings are disabled. The following are the **configured review-local Normal mappings**, not upstream defaults or source-buffer motions:
+
+| Context              | Keys                     | Action                                   |
+| -------------------- | ------------------------ | ---------------------------------------- |
+| View, files, history | `<Tab>`, `<S-Tab>`       | Open next/previous diff entry            |
+| View, files, history | `gf`, `<C-w>gf`          | Open file in editor tab / new tab        |
+| View, files, history | `<Space>gE`, `<Space>gT` | Focus / toggle review file/history panel |
+| View, files, history | `g<C-x>`                 | Cycle diff layout                        |
+| View, files, history | `g?`                     | Context-specific help                    |
+| Files, history       | `j`, `k`                 | Next/previous entry                      |
+| Files, history       | `<CR>`, `o`              | Open selected diff                       |
+| Files, history       | `za`                     | Toggle directory / commit fold           |
+| Files                | `R`                      | Refresh review files                     |
+| History              | `y`                      | Copy commit hash                         |
+| History              | `L`                      | Show commit details                      |
+| History              | `g!`                     | Open history options                     |
+| Options              | `<Tab>`                  | Change history option                    |
+| Options              | `q`, `g?`                | Close options / show options help        |
+| Help                 | `q`, `<Esc>`             | Close help                               |
+
+No Diffview staging, restoration, or merge-resolution actions are configured. **Working-tree buffers are still editable**; existing global Git actions remain available, so this is not a read-only safeguard. Diagnostics continue through the existing Telescope pickers and `<Space>lq`; no Trouble plugin is added. System Git/`diff` dependencies are not downloaded by this configuration.
 
 ### Telescope Git Defaults
 
@@ -459,7 +556,7 @@ These keys come from the installed plugins, not extra custom leader mappings. UI
 | Mason                                          | `1`, `2`, `3`, `4`, `5`                                      | All / LSP / DAP / linter / formatter                          |
 | Lazy                                           | `?`                                                          | Show manager help and its key mappings                        |
 | Lazy                                           | `<CR>`                                                       | Show plugin details                                           |
-| Lazy                                           | `K`                                                          | Open link/help/readme/commit/issue under cursor                |
+| Lazy                                           | `K`                                                          | Open link/help/readme/commit/issue under cursor               |
 | Glow                                           | `q`, `<Esc>`                                                 | Close preview                                                 |
 | DAP variable rows                              | `w`                                                          | Add expression to watches when supported                      |
 | DAP console/REPL                               | `G`                                                          | End and enable autoscroll                                     |

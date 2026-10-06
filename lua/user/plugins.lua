@@ -32,6 +32,15 @@ require("lazy").setup({
     { "rose-pine/neovim", name = "rose-pine" },
     { "Shatur/neovim-ayu" },
     { "nvim-tree/nvim-tree.lua", commit = "7282f7de8aedf861fe0162a559fc2b214383c51c" },
+    { "stevearc/aerial.nvim", commit = "28fe6e822ae344544c379d60fcb13c9519a1f08a" },
+    { "sindrets/diffview.nvim", commit = "4516612fe98ff56ae0415a259ff6361a89419b0a" },
+    {
+        "mbbill/undotree",
+        commit = "6fa6b57cda8459e1e4b2ca34df702f55242f4e4d",
+        init = function()
+            require("user.undotree").init()
+        end,
+    },
     { "akinsho/bufferline.nvim", tag = "v4.9.1", dependencies = "nvim-tree/nvim-web-devicons" },
     { "moll/vim-bbye", commit = "25ef93ac5a87526111f43e5110675032dbcacf56" },
     { "nvim-lualine/lualine.nvim", commit = "a52f078026b27694d2290e34efa61a6e4a690621" },
