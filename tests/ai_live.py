@@ -700,16 +700,15 @@ def main():
         check("no autonomous background inference or model switching on idle", passive_idle)
 
         def pins():
-            data = lua('return vim.fn.stdpath("data")')
             specs = (root / "lua/user/plugins.lua").read_text()
             results = {}
             for name, kind in [("codecompanion.nvim", "tag"), ("minuet-ai.nvim", "commit"), ("plenary.nvim", "commit")]:
                 match = re.search(r'"[^"\n]*/' + re.escape(name) + r'",\s*' + kind + r'\s*=\s*"([^"]+)"', specs)
                 assert match, name + " pin missing"
-                paths = list((Path(data) / "site/pack").glob("*/**/" + name))
-                assert len(paths) == 1, (name, paths)
-                head = command(["git", "-C", str(paths[0]), "rev-parse", "HEAD"])
-                expected = command(["git", "-C", str(paths[0]), "rev-parse", match[1] + "^{commit}"])
+                path = Path(lua('return require("lazy.core.config").plugins[...].dir', name)).resolve()
+                assert path.is_dir(), (name, path)
+                head = command(["git", "-C", str(path), "rev-parse", "HEAD"])
+                expected = command(["git", "-C", str(path), "rev-parse", match[1] + "^{commit}"])
                 assert head["code"] == expected["code"] == 0 and head["stdout"] == expected["stdout"], (head, expected)
                 results[name] = {"pin": match[1], "head": head["stdout"].strip()}
             return results

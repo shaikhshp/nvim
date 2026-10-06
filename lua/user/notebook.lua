@@ -14,7 +14,7 @@ vim.g.molten_virt_text_output = true
 
 local available, jupytext = pcall(require, "jupytext")
 if not available then
-    warn("Install goerz/jupytext.nvim with Packer, then restart Neovim.")
+    warn("Install goerz/jupytext.nvim with Lazy, then restart Neovim.")
 elseif vim.fn.executable(python.jupytext) ~= 1 then
     warn(
         "Missing "

@@ -11,7 +11,7 @@ local project = root .. "/project"
 local saved = {
     notify = vim.notify,
     system = vim.system,
-    packadd = vim.cmd.packadd,
+    lazy = package.loaded.lazy,
     get_node = vim.treesitter.get_node,
     get_clients = vim.lsp.get_clients,
     select = vim.ui.select,
@@ -38,10 +38,12 @@ vim.system = function()
     network = network + 1
     error("Unexpected real process/network request")
 end
-vim.cmd.packadd = function()
-    loads = loads + 1
-    error("Unexpected plugin load")
-end
+package.loaded.lazy = {
+    load = function()
+        loads = loads + 1
+        error("Unexpected plugin load")
+    end,
+}
 local function equal(actual, expected, message)
     assert(
         vim.deep_equal(actual, expected),
@@ -192,6 +194,7 @@ test("startup is inert and preserves cmp/Tab mappings", function()
     equal(#requests, 0)
     equal(#plugin_calls, 0)
     assert(package.loaded.minuet == nil and package.loaded.codecompanion == nil)
+    assert(package.loaded["lazy.core.config"] == nil, "Real Lazy manager must not initialize")
 end)
 
 test("secret/generated/notebook and buffer eligibility blocks all requests", function()
@@ -804,7 +807,7 @@ test("real plugin completion guards asynchronous results and scheduled accepts",
     buffer("plugin.lua")
     package.loaded["user.ai.plugins"] = nil
     local plugins = require("user.ai.plugins")
-    equal(loads, 0, "Requiring the wrapper must not packadd anything")
+    equal(loads, 0, "Requiring the wrapper must not load any Lazy plugins")
     local callbacks, received, visible, dismissed, setups = {}, 0, false, 0, 0
     local backend = {
         complete = function(_, callback)
@@ -842,13 +845,16 @@ test("real plugin completion guards asynchronous results and scheduled accepts",
             error("Top-level Minuet setup must never run")
         end,
     }
-    package.loaded.minuet = minuet
+    package.preload.minuet = function()
+        equal(loads, 1, "Minuet must be required only after explicit Lazy loading")
+        return minuet
+    end
     package.loaded["minuet.config"] = {}
     package.loaded["minuet.virtualtext"] = virtualtext
     package.loaded["minuet.backends.openai_fim_compatible"] = backend
     package.loaded["minuet.backends.common"] = { terminate_all_jobs = function() end }
-    vim.cmd.packadd = function(name)
-        equal(name, "minuet-ai.nvim")
+    package.loaded.lazy.load = function(opts)
+        equal(opts, { plugins = { "minuet-ai.nvim" } })
         loads = loads + 1
     end
     local settings = {
@@ -914,6 +920,36 @@ test("real plugin completion guards asynchronous results and scheduled accepts",
     normal()
     plugins.cancel()
     equal(network, 0)
+    package.preload.minuet = nil
+end)
+
+test("Lazy load and plugin require failures are guarded without fallback", function()
+    package.loaded["user.ai.plugins"] = nil
+    local plugins = require("user.ai.plugins")
+    local settings = {
+        review_model = "qwen2.5-coder:3b",
+        completion_model = "qwen2.5-coder:3b",
+        choices = { ["qwen2.5-coder:3b"] = {} },
+    }
+    local required = 0
+    package.preload.codecompanion = function()
+        required = required + 1
+        error("Synthetic missing plugin module")
+    end
+    package.loaded.lazy.load = function(opts)
+        equal(opts, { plugins = { "codecompanion.nvim" } })
+        error("Synthetic Lazy load failure")
+    end
+    assert(not plugins.chat("Synthetic explicit context", settings))
+    equal(required, 0, "Failed Lazy loads must not require the plugin or fall back")
+    package.loaded.lazy.load = function(opts)
+        equal(opts, { plugins = { "codecompanion.nvim" } })
+    end
+    assert(not plugins.chat("Synthetic explicit context", settings))
+    equal(required, 1, "Plugin require failures must be guarded after Lazy loading")
+    package.preload.codecompanion = nil
+    assert(package.loaded["lazy.core.config"] == nil, "Real Lazy manager must not initialize")
+    equal(network, 0)
 end)
 
 -- Restore APIs before deleting buffers: teardown can call LSP and plugin hooks.
@@ -922,7 +958,7 @@ pcall(ai.reject)
 pcall(ai.cancel)
 vim.notify = saved.notify
 vim.system = saved.system
-vim.cmd.packadd = saved.packadd
+package.loaded.lazy = saved.lazy
 vim.treesitter.get_node = saved.get_node
 vim.lsp.get_clients = saved.get_clients
 vim.ui.select = saved.select

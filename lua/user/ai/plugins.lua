@@ -13,7 +13,9 @@ local function warn(message)
 end
 
 local function load_plugin(name, module)
-    local ok = pcall(vim.cmd.packadd, name)
+    local ok = pcall(function()
+        require("lazy").load({ plugins = { name } })
+    end)
     if ok then
         local loaded, plugin = pcall(require, module)
         if loaded then

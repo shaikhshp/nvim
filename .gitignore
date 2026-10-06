@@ -1,4 +1,4 @@
-# Generated plugin loader (regenerate with :PackerCompile).
+# Legacy generated loader; keep ignored during migration/rollback.
 /plugin/packer_compiled.lua
 
 # Editor, Python test, and local tooling artifacts.

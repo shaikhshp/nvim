@@ -45,11 +45,11 @@ All keys below are **Normal mode** and prefixed with `<Space>`. Source: `user.ke
 | `P`  | Project history picker                                                 |
 | `\|` | Glow Markdown terminal preview                                         |
 | `r`  | Source `$MYVIMRC`; cached Lua modules are not reloaded                 |
-| `pc` | PackerCompile                                                          |
-| `pi` | PackerInstall                                                          |
-| `ps` | PackerSync (can update plugins)                                        |
-| `pS` | PackerStatus                                                           |
-| `pu` | PackerUpdate (preserves spec pins; updates unpinned plugins)           |
+| `pc` | `:Lazy check`: check updates (Git fetch; not compilation)              |
+| `pi` | Install plugins from lockfile (explicit locked API; see below)         |
+| `ps` | `:Lazy sync`: clean unused plugins, install/update; change lockfile    |
+| `pS` | `:Lazy`: open plugin manager                                          |
+| `pu` | `:Lazy update`: intentional upgrades; preserve pins, change lockfile  |
 | `sb` | Git branches (same picker as `gb`)                                     |
 | `sc` | Colorschemes                                                           |
 | `sh` | Help tags                                                              |
@@ -62,9 +62,11 @@ All keys below are **Normal mode** and prefixed with `<Space>`. Source: `user.ke
 
 Project.nvim changes the working directory automatically using root patterns; file/search commands use the resulting context. Markdown browser preview has buffer-local mappings documented below.
 
+`pi` runs `:lua require('lazy').install({ lockfile = true })` with description "Install plugins from lockfile", honoring existing `lazy-lock.json` entries for missing plugins. Bare `:Lazy install` uses spec targets and can choose newer unpinned revisions; plugins without lockfile entries fall back to spec targets even with the locked API, so new-plugin installation is explicit and deliberate. `:Lazy restore` (no custom mapping) restores already-installed plugins to the current lockfile but does not install missing plugins. Both install forms and restore rewrite the lockfile from installed checkouts: preserve the original baseline before recovering a mixed/drifted installation and follow the [README installation guidance](README.md#installation), including restoring that baseline and restarting between install and restore. **`ps` can remove unused Lazy-managed plugins**, unlike the previous Packer no-auto-clean policy; it is not a reload or baseline restore. There is no compile command.
+
 ## Markdown Preview
 
-Source: `lua/user/documents.lua`. These mappings are **Normal-mode and Markdown-buffer-local**. Uppercase `<Space>M` is separate from lowercase notebook `<Space>m`, Packer `<Space>p`, and existing search bindings. Glow's `<Space>\|` terminal preview is unchanged.
+Source: `lua/user/documents.lua`. These mappings are **Normal-mode and Markdown-buffer-local**. Uppercase `<Space>M` is separate from lowercase notebook `<Space>m`, Lazy manager `<Space>p`, and existing search bindings. Glow's `<Space>\|` terminal preview is unchanged.
 
 | Mode | Keys        | Command / Action                                    |
 | ---- | ----------- | --------------------------------------------------- |
@@ -412,17 +414,17 @@ The actual `mo` is **EnterOutput**, not an OpenOutputWindow command: it opens th
 
 Alpha-local **Normal** buttons from `user.alpha` do not use leader:
 
-| Keys | Action                     |
-| ---- | -------------------------- |
-| `f`  | Find file                  |
-| `e`  | New buffer and Insert mode |
-| `p`  | Find project               |
-| `r`  | Recent files               |
+| Keys | Action                                                  |
+| ---- | ------------------------------------------------------- |
+| `f`  | Find file                                               |
+| `e`  | New buffer and Insert mode                              |
+| `p`  | Find project                                            |
+| `r`  | Recent files                                            |
 | `s`  | Restore current directory's saved session (Persistence) |
-| `l`  | Restore most recently saved session (Persistence) |
-| `t`  | Find text                  |
-| `c`  | Edit `$MYVIMRC`            |
-| `q`  | Quit Neovim (`:qa`)        |
+| `l`  | Restore most recently saved session (Persistence)       |
+| `t`  | Find text                                               |
+| `c`  | Edit `$MYVIMRC`                                         |
+| `q`  | Quit Neovim (`:qa`)                                     |
 
 Session keys are **dashboard-local**, not global `s`/`l` mappings or leader bindings. Open the dashboard with `<Space>a`. `s` uses the current working directory and Git branch; it does not fall back to another directory's last session. `l` restores the most recently saved session across directories. If no matching session exists, the action does nothing. Sessions save automatically on normal exit when at least one named normal buffer exists. Save important edits before restoring; sessions do not back up unsaved text. See [README.md](README.md#sessions) for storage, exclusions, and save controls.
 
@@ -455,9 +457,9 @@ These keys come from the installed plugins, not extra custom leader mappings. UI
 | Mason                                          | `<C-c>`, `<C-f>`, `g?`                                       | Cancel install / filter language / help                       |
 | Mason                                          | `q`, `<Esc>`                                                 | Close or clear active filter/search                           |
 | Mason                                          | `1`, `2`, `3`, `4`, `5`                                      | All / LSP / DAP / linter / formatter                          |
-| Packer                                         | `q`, `<CR>`, `d`                                             | Close / details / diff                                        |
-| Packer                                         | `u`, `c`, `r`, `R`                                           | Toggle update / continue / revert prompt / retry              |
-| Packer diff preview                            | `q`                                                          | Close preview                                                 |
+| Lazy                                           | `?`                                                          | Show manager help and its key mappings                        |
+| Lazy                                           | `<CR>`                                                       | Show plugin details                                           |
+| Lazy                                           | `K`                                                          | Open link/help/readme/commit/issue under cursor                |
 | Glow                                           | `q`, `<Esc>`                                                 | Close preview                                                 |
 | DAP variable rows                              | `w`                                                          | Add expression to watches when supported                      |
 | DAP console/REPL                               | `G`                                                          | End and enable autoscroll                                     |
@@ -472,6 +474,8 @@ These keys come from the installed plugins, not extra custom leader mappings. UI
 | Telescope command/search history and registers | `<C-e>`                                                      | Edit selected entry                                           |
 
 Project browsing is overridden by `user.project` to open the selected project's NvimTree, replacing the extension's removed Telescope file-browser interface. Most pickers use Enter to perform their context's action, which can insert text, execute commands, change options, or check out Git revisions rather than merely open a file.
+
+Lazy UI defaults above are verified against the installed `stdpath("data")/lazy/lazy.nvim/lua/lazy/view/config.lua` and [published upstream usage documentation](https://lazy.folke.io/usage). Use `?` in the installed manager for its complete bindings; manager actions can install, update, restore, or clean plugins. The UI's install actions are ordinary spec-target installs, not the locked `pi` wrapper.
 
 ### VimTeX Editing Defaults
 

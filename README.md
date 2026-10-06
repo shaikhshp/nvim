@@ -2,7 +2,7 @@
 
 A personal, modular Lua configuration for programming, technical writing, and notebooks. It combines native Neovim LSP, completion and snippets, explicit tool provisioning, formatting, debugging, fuzzy navigation, VimTeX, Jupyter integration, and on-demand local AI.
 
-This is a configuration to read and adapt, not a general-purpose Neovim distribution. It uses **Packer**, targets **Neovim 0.12+**, and assumes a Linux-oriented development environment. Language tools, kernels, TeX utilities, and Ollama are separate dependencies; installing plugins alone does not install a complete development environment.
+This is a configuration to read and adapt, not a general-purpose Neovim distribution. It uses **Lazy (lazy.nvim)**, targets **Neovim 0.12+**, and assumes a Linux-oriented development environment. Language tools, kernels, TeX utilities, and Ollama are separate dependencies; installing plugins alone does not install a complete development environment.
 
 ## Contents
 
@@ -30,7 +30,7 @@ This is a configuration to read and adapt, not a general-purpose Neovim distribu
 | ------------------ | ----------------------------------------------------------------------------------------------------------------- |
 | Appearance         | Catppuccin Mocha, Bufferline, Lualine, indentation guides, file icons, color highlighting, and an Alpha dashboard |
 | Navigation         | Telescope file/text/buffer/project searches, NvimTree, and project.nvim                                           |
-| Sessions           | Persistence saves editing layouts on exit; Alpha restores directory or last sessions |
+| Sessions           | Persistence saves editing layouts on exit; Alpha restores directory or last sessions                              |
 | Editing            | Treesitter, automatic pairs and tags, context-aware comments, and reference highlighting                          |
 | Completion         | nvim-cmp, LuaSnip, friendly-snippets, and LSP/buffer/path sources                                                 |
 | Language services  | Native LSP configuration with Mason-managed tools and language-specific overrides                                 |
@@ -110,19 +110,26 @@ The examples assume the default Neovim application name. Custom `NVIM_APPNAME` s
 
 ### 2. Install Plugins
 
-`lua/user/plugins.lua` bootstraps Packer if it is missing. **The first bootstrap clones Packer and requests a plugin sync**, so first startup can use the network.
+`lua/user/plugins.lua` bootstraps Lazy at `stdpath("data")/lazy/lazy.nvim`, checking out stable commit `85c7ff3711b730b4030d03144f6db6375044ae82`. **Fresh first startup clones only the manager**, so it can use the network but does not install the declared plugins. Missing-plugin warnings are expected until explicit installation.
 
-Inside Neovim, install missing plugins and regenerate the loader:
+Inside Neovim, install missing plugins from the shipped lockfile baseline, then inspect the manager:
 
 ```vim
-:PackerInstall
-:PackerCompile
-:PackerStatus
+:lua require("lazy").install({lockfile=true})
+:Lazy
 ```
 
-Wait for installation/build operations to finish, then restart Neovim. Markdown browser preview uses the plugin's synchronous prebuilt-backend installer. Molten's remote-plugin registration needs the Python provider described in [Notebooks](#notebooks); repeat registration after setting up that provider.
+Wait for installation and its builds to finish, then restart Neovim. `<leader>pi` invokes this same lockfile-based installation API. Markdown browser preview uses the plugin's synchronous prebuilt-backend installer. Molten's `:UpdateRemotePlugins` build needs the Python provider described in [Notebooks](#notebooks); repeat registration after setting up that provider.
 
-The authoritative plugin specification is `lua/user/plugins.lua`. Some plugins are pinned; others follow upstream. This is not a fully locked dependency snapshot. `plugin/packer_compiled.lua` is generated locally and is intentionally not version-controlled.
+**Bare `:Lazy install` is not a lockfile-baseline install.** It uses spec targets and can select the latest unpinned revisions. The locked API honors existing lockfile entries for missing plugins; plugins without entries still fall back to spec targets, so adding a declaration requires an explicit, deliberate installation and revision review. `:Lazy restore` restores **already-installed** plugins to the current lockfile; it does not install missing plugins.
+
+**Both installation forms and restore rewrite `lazy-lock.json` from the installed checkouts.** Locked installation does not repair an already-installed plugin at a different revision, and failed installs can drop missing entries from the rewritten lockfile. Preserve an original baseline copy before recovery. If the installation is mixed (some plugins missing, others at different revisions), install missing plugins with the locked API, restore the original baseline lockfile, restart Neovim to clear Lazy's cached lock data, then run `:Lazy restore`. Retain the original baseline after failures and restart before retrying; do not commit a partial or unintended lockfile.
+
+The authoritative plugin specification is `lua/user/plugins.lua`; the tracked `lazy-lock.json` records the installed baseline revisions for all declared plugins, including Lazy. Preserve deliberate commit/tag pins and review lockfile changes. There is no compile step or generated loader to regenerate.
+
+Declared plugins load eagerly by default (`defaults.lazy = false`, `version = false`), except CodeCompanion and Minuet: both use `lazy = true`, `module = false`, and are loaded explicitly by the guarded AI wrapper through `require("lazy").load()`. Missing-plugin auto-installation and background update checks are disabled (`install.missing = false`, `checker.enabled = false`), as are project-local specs, package metadata, and LuaRocks (`local_spec = false`, `pkg.enabled = false`, `rocks.enabled = false`).
+
+When migrating from Packer, keep old package directories available for rollback until the new setup is verified. The old generated `packer_compiled` runtime plugin is disabled; do not source it manually. Lazy owns plugin loading rather than the old start-package loader. Molten's installation path changes to `stdpath("data")/lazy/molten-nvim`: regenerate the remote-plugin manifest with `:UpdateRemotePlugins` and restart even if the provider path is unchanged. Rollback means restoring the previous configuration and regenerating its remote-plugin manifest, not mixing both managers.
 
 ### 3. Provision Language Tools
 
@@ -194,10 +201,10 @@ Completion uses `<C-j>`/`<C-k>` for selection, `<C-Space>` to request completion
 
 Open the Alpha dashboard with `<leader>a`:
 
-| Dashboard key | Action |
-| --- | --- |
-| `s` | Restore the saved session for the current working directory/Git branch |
-| `l` | Restore the most recently saved session across directories |
+| Dashboard key | Action                                                                 |
+| ------------- | ---------------------------------------------------------------------- |
+| `s`           | Restore the saved session for the current working directory/Git branch |
+| `l`           | Restore the most recently saved session across directories             |
 
 These keys are dashboard-local and do not replace normal editing mappings. A missing session is a no-op. The directory action can fall back to a branchless session for the same directory, but does not fall back to another directory's last session. `main` and `master` use the branchless name; other branches have separate sessions when `.git` exists directly in the working directory.
 
@@ -217,7 +224,7 @@ Optional controls from any buffer:
 :lua require("persistence").start()
 ```
 
-`save()` saves immediately and bypasses the minimum-buffer safeguard. `stop()` disables exit saving for this Neovim process without deleting existing sessions; `start()` resumes it. Loading a session does not undo `stop()`. Install the declared plugin with `:PackerInstall`, run `:PackerCompile`, and restart after adopting this configuration. Setup lives in `lua/user/persistence.lua`.
+`save()` saves immediately and bypasses the minimum-buffer safeguard. `stop()` disables exit saving for this Neovim process without deleting existing sessions; `start()` resumes it. Loading a session does not undo `stop()`. Install the missing declared plugin from the baseline with `:lua require("lazy").install({lockfile=true})` or `<leader>pi`, and restart after adopting this configuration. `:Lazy restore` restores existing installations only. Setup lives in `lua/user/persistence.lua`.
 
 ## Language Support
 
@@ -378,14 +385,13 @@ The following Normal-mode mappings are **Markdown-buffer-local**; uppercase `M` 
 
 Preview starts only when requested. The server listens on localhost by default, and the URL is echoed in Neovim so it can also be opened manually. On Linux, automatic launch uses the system URL opener (`xdg-open`) unless you explicitly configure the plugin's browser override. A graphical browser/session is needed; remote/headless sessions may need a separate browser-opening arrangement. Upstream defaults close a buffer's preview when that Markdown buffer becomes hidden, not merely when focus moves to another window.
 
-The plugin is loaded at startup so its buffer-local commands are registered on the first Markdown filetype event. Its Packer hook calls `mkdp#util#install_sync()` to download and finish installing the upstream prebuilt backend, restores the working directory, and checks that the executable exists. If that hook failed or an older installation has no backend, repair it inside Neovim:
+The plugin is loaded at startup so its buffer-local commands are registered on the first Markdown filetype event. Its Lazy build hook first loads the plugin through the manager, calls upstream `mkdp#util#install_sync()` synchronously to download and finish installing the prebuilt backend, restores the working directory, and checks the platform executable under `plugin.dir/app/bin/`. If that hook failed or an older installation has no backend, rerun the guarded build inside Neovim:
 
 ```vim
-:call mkdp#util#install_sync()
-:PackerCompile
+:Lazy build markdown-preview.nvim
 ```
 
-Restart afterward. The manual upstream installer can change the current window's working directory to the plugin's `app` directory; restore your project directory if continuing without a restart. `:PackerCompile` also reconciles the package location when migrating an older filetype-lazy installation; no bulk plugin update is needed. An already-installed plugin may not rerun its install hook, so the explicit installer command above repairs an incomplete backend.
+Restart afterward. The raw upstream installer can change the current window's working directory to the plugin's `app` directory; the configured build restores it even on installer failure. An already-installed plugin may not rerun its build automatically, so the explicit build above repairs an incomplete backend without a bulk plugin update or compile step.
 
 If prebuilt binaries are unavailable for your platform, the supported alternative is `npm install` in **this plugin's `app` directory**, using Node.js/npm. Do not run it in this configuration repository. Without either a working prebuilt executable or installed app dependencies, the backend cannot start. Inspect `:messages` for errors and the echoed preview URL for browser-opening problems.
 
@@ -424,7 +430,7 @@ After dependencies and Molten are installed, run **from this configuration**:
 :UpdateRemotePlugins
 ```
 
-Then restart. Repeat registration if the provider was missing during the plugin installation hook or its path changed. Inspect the actual paths with:
+Then restart. Repeat registration if the provider was missing during the plugin build, its path changed, or Molten moved from a Packer package directory to `stdpath("data")/lazy/molten-nvim`. The manifest contains plugin paths, so migration requires regeneration even with an unchanged provider. Inspect the actual paths with:
 
 ```vim
 :lua print(require("user.python").host, require("user.python").jupytext)
@@ -558,7 +564,8 @@ Insert-mode completion is separate from cmp and manual-only:
 
 Local AI transport does **not** make the entire configuration offline or private:
 
-- Packer bootstrap, plugin builds, Mason, and parser installation use the network.
+- Lazy bootstrap clones the manager on first startup. Explicit installation (including `require("lazy").install({lockfile=true})`), `:Lazy restore`, `:Lazy check` (Git fetch), `:Lazy update`, and `:Lazy sync` can use the network; automatic missing-plugin installs and background update checks are disabled.
+- Plugin builds (including Markdown backend downloads), Mason provisioning, and parser installation/updates can use the network.
 - JSON language-service schemas can refer to remote URLs.
 - Grammarly is configured when its executable is available; review that service separately.
 - Cord is set up during startup when installed and can publish Discord Rich Presence. Normal-mode `<leader>D` toggles presence off/on (`:Cord presence toggle`): hide it before gaming or working on sensitive projects, then press again to restore it. Hiding remains in effect across focus changes but is not saved across Neovim restarts; other Neovim instances can still publish their own activity.
@@ -578,7 +585,7 @@ init.lua                   Startup orchestration and module load order
 lua/user/
   options.lua              Editor defaults
   keymaps.lua              Global mappings
-  plugins.lua              Packer declarations and pins
+  plugins.lua              Lazy bootstrap, declarations, pins, and build hooks
   formatting.lua           Manual/save formatting policy
   persistence.lua          Session saving and native restore scope
   python.lua               Remote provider and project interpreter resolution
@@ -594,6 +601,7 @@ lua/user/
   ...                      UI, navigation, completion, and terminal modules
 ftplugin/java.lua          Java filetype entrypoint
 tests/                     Focused configuration and integration checks
+lazy-lock.json             Tracked installed plugin revision baseline
 KEYMAPS.md                 Detailed mapping catalog
 AGENTS.md                  Repository maintenance guidance for coding agents
 .stylua.toml               Lua formatting conventions
@@ -620,12 +628,14 @@ Update [KEYMAPS.md](KEYMAPS.md) when changing mappings. Lua uses four-space inde
 
 ## Maintenance
 
-- `:PackerInstall` installs missing plugins; `:PackerCompile` regenerates the loader after specification changes.
-- `:PackerSync` installs/updates and compiles. `:PackerUpdate` is also an update operation, not a harmless reload. Preserve deliberate version pins unless intentionally upgrading them.
-- Packer uses `auto_clean = false`. Removed declarations do not remove old local packages; leftover start-packages can still load. Inspect obsolete installations separately.
-- `:TSUpdate` updates parsers after Treesitter changes; it is also configured as the plugin's build hook.
+- `<leader>pi` / `:lua require("lazy").install({lockfile=true})` installs missing plugins using existing `lazy-lock.json` entries. `:Lazy restore` returns already-installed plugins to the current lockfile but does not install missing plugins. Both operations rewrite the lockfile; preserve the original baseline and follow the installation section's recovery sequence when plugins are missing and existing revisions have drifted. Restart after specification changes; no compile step is needed.
+- Bare `:Lazy install` uses spec targets, can choose newer unpinned revisions, and rewrites the lockfile. New plugins without lockfile entries fall back to spec targets even with the locked API: install deliberately and review resulting revisions and lockfile changes.
+- `:Lazy check` checks for updates with Git fetch; `:Lazy` opens the manager and `:Lazy log` shows recent updates. Inspect manager task/build output and `:messages` when builds fail.
+- `:Lazy update` is for intentional upgrades and changes the lockfile. Preserve spec commit/tag pins and review/commit intended `lazy-lock.json` changes along with spec changes.
+- **`:Lazy sync` cleans unused Lazy-managed plugins, installs missing plugins, and updates plugins/lockfile.** Unlike the prior Packer `auto_clean = false` policy, it can remove obsolete installations; it is not a harmless reload or a baseline restore. `:Lazy clean` explicitly removes unused Lazy-managed plugins. Old Packer package directories are separate and should be inspected deliberately, not deleted as a blanket migration step.
+- `:TSUpdate` updates parsers after Treesitter changes and is the Lazy build hook; it does not replace explicit configured parser installation through `require("user.treesitter").install()`.
 - `<leader>r` sources the entrypoint but does **not** clear cached Lua modules. Restart after changes that need reinitialization.
-- Keep generated loaders, Python caches, virtualenvs, logs, credentials, and live-test artifacts out of version control.
+- Keep Python caches, virtualenvs, local plugin data/state, logs, credentials, and live-test artifacts out of version control; keep `lazy-lock.json` tracked. `nvim-pack-lock.json` is not the active Lazy lockfile.
 
 CodeCompanion is pinned to `v19.27.0`, Minuet to `3b0a4c5f97b7124d94302c608fbe01c0270d4fbe`, and Plenary to `74b06c6c75e4eeb3108ec01852001636d85a932b`. Check the full plugin specification for other pins. Copilot, CoC, null-ls, Magma, and impatient are not configured alternative stacks.
 
@@ -637,21 +647,23 @@ There is no general build/CI pipeline. Focused checks live under `tests/`; run t
 
 ```sh
 nvim --headless '+quit'
+nvim --headless -u NONE -i NONE -l tests/plugin_manager_config.lua
 nvim --headless -u NONE -i NONE -l tests/ai_config.lua
 nvim --headless -u NONE -i NONE -l tests/formatting_config.lua
 nvim --headless -u NONE -i NONE -l tests/persistence_config.lua
 lua tests/notebook_config.lua
 ```
 
-| Check                    | Coverage                                                                                                                                   |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Startup smoke            | Loads the installed configuration; distinguish missing-plugin warnings from runtime errors                                                 |
-| AI configuration         | Synthetic/stubbed startup, eligibility/context/model guards, separate hints, stale callbacks, correction acceptance, and manual completion |
-| Formatting configuration | Stubbed formatter ordering, LSP fallback, toggles, exclusions, and errors                                                                  |
-| Persistence configuration | Stubbed missing-plugin guard, session options, exit-save setup, and dashboard restore actions |
-| Notebook configuration   | Stubbed provider/plugin guards, settings, mapping scope, and explicit initialization                                                       |
+| Check                     | Coverage                                                                                                                                   |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Startup smoke             | Loads the installed configuration; distinguish missing-plugin warnings from runtime errors                                                 |
+| Plugin manager specs      | Isolated sourced specs: bootstrap guards, pins, eager/AI loading policy, build hooks, and disabled auto-install/check/package flags        |
+| AI configuration          | Synthetic/stubbed startup, eligibility/context/model guards, separate hints, stale callbacks, correction acceptance, and manual completion |
+| Formatting configuration  | Stubbed formatter ordering, LSP fallback, toggles, exclusions, and errors                                                                  |
+| Persistence configuration | Stubbed missing-plugin guard, session options, exit-save setup, and dashboard restore actions                                              |
+| Notebook configuration    | Stubbed provider/plugin guards, settings, mapping scope, and explicit initialization                                                       |
 
-The isolated AI test makes no real process/network requests. The startup smoke test is not an isolated first-install test: if Packer is missing, normal startup can bootstrap it.
+The isolated plugin-manager spec test sources configuration with manager/process stubs, without a Python provider or real process/network calls; it does not install plugins or validate live builds. The isolated AI test also makes no real process/network requests. The startup smoke test is not an isolated first-install test: if Lazy is missing, normal startup clones the manager. No new migration/live-test pass is implied by these commands or coverage descriptions.
 
 ### Notebook Integration
 
@@ -676,7 +688,7 @@ With the pinned plugins, provider `pynvim`, curl, a running local Ollama service
 "$provider/bin/python" tests/ai_live.py --model qwen2.5-coder:3b
 ```
 
-Without `--model`, the harness benchmarks 3b and 7b and integrates the first. The option is repeatable. Tests send synthetic prompts only, do not pull models/provision dependencies/restart the daemon, and do not save source buffers. Retained reports contain synthetic prompts/responses and local process/resource information; inspect them before sharing.
+Without `--model`, the harness benchmarks 3b and 7b and integrates the first. The option is repeatable. Pin validation resolves installed plugin directories through `require("lazy.core.config").plugins[name].dir` and compares their Git revisions with the declared tag/commit pins, rather than assuming Packer paths. Tests send synthetic prompts only, do not pull models/provision dependencies/restart the daemon, and do not save source buffers. Retained reports contain synthetic prompts/responses and local process/resource information; inspect them before sharing.
 
 Schema validation and integration success are not model-accuracy tests. Performance depends on hardware, cold loading, context, and competing jobs; no portable speed or memory guarantee is implied. Interactive LSP/DAP, Java bundles, TeX viewing, Markdown preview, and output export require separate checks with their real dependencies.
 
@@ -686,7 +698,7 @@ Schema validation and integration success are not model-accuracy tests. Performa
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Missing icons or incorrect glyphs | Select a Nerd Font in your terminal; the GUI font option does not configure terminal fonts                    |
 | Clipboard unavailable             | `:checkhealth` and an installed clipboard provider appropriate to your session                                |
-| Plugin feature missing            | `:PackerStatus`, installation/build output, generated loader, and restart after installation                  |
+| Plugin feature missing            | `:Lazy`, task/build output, `:messages`, lockfile baseline, and restart after installation                    |
 | LSP not attached                  | `:LspInfo`, `:Mason`, executable availability, filetype, and project root                                     |
 | Treesitter highlighting missing   | CLI/compiler versions, parser installation, and `:checkhealth`; CSS is deliberately excluded                  |
 | Formatting not running            | `:ConformInfo`, formatter/LSP availability, both save-disable flags, buffer size/type, and timeout            |
@@ -697,7 +709,7 @@ Schema validation and integration success are not model-accuracy tests. Performa
 | Notebook output absent or stale   | Explicit kernel initialization/import; saving does not export live results, and retained results may be stale |
 | AI unavailable                    | Local Ollama/curl availability, exact installed tag, eligibility/context limits, and buffer AI-disable flag   |
 | Alt completion keys not received  | Terminal key encoding; verify Alt/Meta and Alt-Enter support                                                  |
-| Removed plugin still active       | Old local start-package directories; removing a declaration alone does not uninstall a package                |
+| Removed plugin still active       | Inspect Lazy state and obsolete Packer directories; `:Lazy clean` removes only unused Lazy-managed plugins    |
 
 Useful health commands include `:checkhealth`, `:checkhealth provider`, and `:checkhealth molten` where supported by the installed versions. Read warnings rather than treating a successful launch as proof that every integration is ready.
 
