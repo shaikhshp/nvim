@@ -385,7 +385,7 @@ The following Normal-mode mappings are **Markdown-buffer-local**; uppercase `M` 
 
 Preview starts only when requested. The server listens on localhost by default, and the URL is echoed in Neovim so it can also be opened manually. On Linux, automatic launch uses the system URL opener (`xdg-open`) unless you explicitly configure the plugin's browser override. A graphical browser/session is needed; remote/headless sessions may need a separate browser-opening arrangement. Upstream defaults close a buffer's preview when that Markdown buffer becomes hidden, not merely when focus moves to another window.
 
-The plugin is loaded at startup so its buffer-local commands are registered on the first Markdown filetype event. Its Lazy build hook first loads the plugin through the manager, calls upstream `mkdp#util#install_sync()` synchronously to download and finish installing the prebuilt backend, restores the working directory, and checks the platform executable under `plugin.dir/app/bin/`. If that hook failed or an older installation has no backend, rerun the guarded build inside Neovim:
+The plugin is loaded at startup so its buffer-local commands are registered on the first Markdown filetype event. Its Lazy build hook delegates to `lua/user/markdown-preview.lua`; runtime settings and keymaps remain in `lua/user/documents.lua`. The build first loads the plugin through the manager, calls upstream `mkdp#util#install_sync()` synchronously to download and finish installing the prebuilt backend, restores the working directory, and checks the platform executable under `plugin.dir/app/bin/`. If that hook failed or an older installation has no backend, rerun the guarded build inside Neovim:
 
 ```vim
 :Lazy build markdown-preview.nvim

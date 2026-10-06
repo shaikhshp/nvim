@@ -60,6 +60,8 @@ fake.cmd = function(command)
     cwd = command:match("^%w+ (.+)$")
 end
 local original_lazy = package.loaded.lazy
+local original_markdown = package.loaded["user.markdown-preview"]
+package.loaded["user.markdown-preview"] = dofile("lua/user/markdown-preview.lua")
 package.loaded.lazy = {
     setup = function(plugin_specs, opts)
         specs, options = plugin_specs, opts
@@ -165,6 +167,7 @@ assert(install_map.rhs == "<cmd>lua require('lazy').install({ lockfile = true })
 real_vim.api.nvim_feedkeys(" pi", "xt", false)
 assert(installed.lockfile == true, "Install mapping must request locked checkout")
 package.loaded.lazy = original_lazy
+package.loaded["user.markdown-preview"] = original_markdown
 print(
     "PASS: bootstrap guards, pins, eager/AI policy, build hooks, and disabled automatic provisioning; no real processes/network"
 )
