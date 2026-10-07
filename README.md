@@ -10,6 +10,7 @@ This is a configuration to read and adapt, not a general-purpose Neovim distribu
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Everyday Use](#everyday-use)
+- [UI Panels](#ui-panels)
 - [Sessions](#sessions)
 - [Language Support](#language-support)
 - [Formatting](#formatting)
@@ -29,14 +30,15 @@ This is a configuration to read and adapt, not a general-purpose Neovim distribu
 | Area               | Configuration                                                                                                     |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------- |
 | Appearance         | Catppuccin Mocha, Bufferline, Lualine, indentation guides, file icons, color highlighting, and an Alpha dashboard |
-| Navigation         | Telescope file/text/buffer/project searches, NvimTree, and project.nvim                                           |
+| Navigation         | Telescope file/text/buffer/project searches, NvimTree, Aerial outline, and project.nvim                           |
 | Sessions           | Persistence saves editing layouts on exit; Alpha restores directory or last sessions                              |
 | Editing            | Treesitter, automatic pairs and tags, context-aware comments, and reference highlighting                          |
 | Completion         | nvim-cmp, LuaSnip, friendly-snippets, and LSP/buffer/path sources                                                 |
 | Language services  | Native LSP configuration with Mason-managed tools and language-specific overrides                                 |
 | Formatting         | Conform, external-formatter preference, selected LSP fallback, and buffer/global save-format toggles              |
 | Debugging          | nvim-dap and DAP UI, with Python, Rust, and Java integration                                                      |
-| Git and terminals  | Gitsigns, Telescope Git pickers, ToggleTerm, and a Lazygit terminal                                               |
+| Git and terminals  | Gitsigns, Diffview review/history, Telescope Git pickers, ToggleTerm, and a Lazygit terminal                      |
+| Undo history       | Undotree browser over the existing persistent undo history                                                        |
 | Documents          | VimTeX with latexmk/zathura, Glow, and browser-based Markdown preview                                             |
 | Notebooks          | Jupytext percent-cell editing and explicit Molten kernel execution                                                |
 | Local AI           | Ollama-backed reviews, explanations, correction previews, CodeCompanion chat, and manual Minuet completion        |
@@ -81,6 +83,7 @@ Check `tree-sitter --version` before installing parsers. Prefer the installation
 | Markdown browser preview  | Plugin's prebuilt backend (downloaded by its install hook), or Node.js/npm fallback; graphical browser and system URL opener |
 | Notebooks                 | Isolated Python provider, Jupytext, Jupyter dependencies, and registered kernels                                             |
 | Local AI                  | curl, user-managed Ollama server, and an installed approved coder model                                                      |
+| Review and undo panels    | Git 2.31+ for Diffview; external `diff` command for Undotree's optional diff panel                                           |
 | Named terminals           | `lazygit`, `node`, `ncdu`, `htop`, or `python`, depending on the terminal used                                               |
 
 Install system dependencies with your preferred package manager or user-local tooling. The configuration does not run `sudo` or automatically provision a JDK, TeX distribution, kernel environment, or Ollama service.
@@ -194,6 +197,48 @@ The following is a quick reference, not a replacement for [KEYMAPS.md](KEYMAPS.m
 **Git actions can change your worktree.** `<leader>gr` resets a hunk and `<leader>gR` resets buffer changes. Telescope Git pickers include checkout and other modifying actions; consult the catalog before treating them as read-only previews.
 
 Completion uses `<C-j>`/`<C-k>` for selection, `<C-Space>` to request completion, and `<C-e>` to abort. Enter confirms an explicitly selected item. Tab/Shift-Tab navigate completion and snippets. Autopairs fast wrap uses `<M-e>` (Alt-e).
+
+## UI Panels
+
+### Tree and Outline
+
+`<leader>e` still toggles NvimTree in normal editing tabs, now through `user.sidebar.tree_toggle`. Aerial uses global attachment and follows the most recently visited eligible visible source window in the current tab. Special/floating and diff windows are ignored; it does not open automatically or manage source folds.
+
+| Mapping                     | Action                              |
+| --------------------------- | ----------------------------------- |
+| `<leader>ot`                | Toggle outline, returning to source |
+| `<leader>of`                | Open or focus outline               |
+| `<leader>on` / `<leader>op` | Next / previous symbol in source    |
+
+When both panels are open, Tree sits above outline in one left column, regardless of opening order. The configured width is 30 columns (clamped on narrow screens); outline opening is refused when there is too little room. Manual window resizing remains available, although layout reconciliation or terminal resizing can reapply configured dimensions. Aerial's plugin `<C-j>`/`<C-k>` mappings are disabled so global window focus works there; NvimTree's existing `<C-k>` file-information exception remains unchanged. These features add no new non-leader source-motion overrides.
+
+Closing a source window makes the outline follow another eligible editor. If an orphaned outline would be the sole remaining window, it is replaced with an ordinary empty editor instead of leaving an unclosable panel.
+
+### Git Review
+
+Diffview opens separate, marked review tabs with its own file panel; the editing tab's Tree/outline stays isolated. `<leader>e` in a review tab only directs you to `<leader>gT`. Default review/history layouts show side-by-side diffs, with a left 30-column file panel or bottom 12-line history panel.
+
+| Mapping      | Action                                                         |
+| ------------ | -------------------------------------------------------------- |
+| `<leader>gD` | Review project against HEAD, including staged/unstaged changes |
+| `<leader>gF` | Review current source file against HEAD                        |
+| `<leader>gh` | Review current source file history                             |
+| `<leader>gH` | Review project history                                         |
+| `<leader>gQ` | Close Diffview review                                          |
+
+File-scoped actions use the remembered visible source filename, passed as an API argument rather than interpolated into an Ex command. Project actions use that source's repository context when available, otherwise the current working directory. `<leader>gE` / `<leader>gT` focus/toggle Diffview's own panel only in review buffers.
+
+The pinned Diffview release can leave a late file-open callback after closing a loading view. `<leader>gQ` tracks active file-open operations, including revisiting cached entries, and refuses to close while content/history is loading. Wait for the revision to finish opening, then press it again; raw `:DiffviewClose` or tab-closing commands do not include this guard.
+
+Project working-tree reviews exclude `.ipynb`, and current-file working-tree review refuses converted notebook buffers: Jupytext displays percent-cell Python while Git stores JSON, so comparing those representations is misleading. File/project history can show historical notebook JSON on both sides. Use a notebook-aware diff tool for working-tree notebook changes; raw Diffview commands do not apply these exclusions.
+
+Diffview defaults are disabled in favor of a small explicit navigation, panel, history, and help map set; see [KEYMAPS.md](KEYMAPS.md#diffview-review). No staging, restoration, or merge-resolution actions are configured there. **Working-tree buffers remain editable**, and existing global Gitsigns/Telescope Git actions are not disabled: this is not a read-only worktree safeguard.
+
+### Undo Browser
+
+`<leader>Ut` toggles Undotree and `<leader>Uf` opens/focuses it from a valid named, normal, editable visible source file. It occupies a bottom row of 12 lines, clamped to one third of terminal height (at least one line). Its optional diff panel opens manually with the native tree-local `D` mapping, to the right in the same bottom row; diff does not open automatically.
+
+Persistent undo was already enabled. Undotree browses that history and can change buffer text when selecting an undo state; it is not a backup or an autosave feature. Sessions still save layouts, not unsaved text. Git 2.31+ and the external `diff` command are user-managed dependencies; this setup does not download system tools.
 
 ## Sessions
 
@@ -588,6 +633,10 @@ lua/user/
   plugins.lua              Lazy bootstrap, declarations, pins, and build hooks
   formatting.lua           Manual/save formatting policy
   persistence.lua          Session saving and native restore scope
+  sidebar.lua              Shared Tree/outline layout and visible source tracking
+  aerial.lua               Global outline attachment and panel settings
+  diffview.lua             Isolated Git review/history tabs and safe action maps
+  undotree.lua             Pre-plugin globals, source guards, and bottom-row layout
   python.lua               Remote provider and project interpreter resolution
   lsp/                     Native LSP setup, handlers, and server overrides
   ai/                      Local transport, context, review, chat, completion
@@ -608,6 +657,8 @@ AGENTS.md                  Repository maintenance guidance for coding agents
 ```
 
 Options and the Python provider load first; VimTeX globals load before plugins. Completion, formatting, LSP, UI/navigation, documents/notebooks, debugging, and workflow setup follow. Java starts from its ftplugin.
+
+The main plugin specs pin Aerial to `28fe6e822ae344544c379d60fcb13c9519a1f08a`, Diffview to `4516612fe98ff56ae0415a259ff6361a89419b0a`, and Undotree to `6fa6b57cda8459e1e4b2ca34df702f55242f4e4d`. Undotree's spec `init` wrapper calls `user.undotree.init()` before plugin loading. Startup then loads `user.aerial`, calls `user.sidebar.setup()`, loads `user.diffview`, and calls `user.undotree.setup()`.
 
 Keep new feature setup under `lua/user/` and require startup modules from `init.lua`; keep the entrypoint focused on orchestration. Edit the appropriate owning module rather than adding a second setup call elsewhere.
 
@@ -651,6 +702,7 @@ nvim --headless -u NONE -i NONE -l tests/plugin_manager_config.lua
 nvim --headless -u NONE -i NONE -l tests/ai_config.lua
 nvim --headless -u NONE -i NONE -l tests/formatting_config.lua
 nvim --headless -u NONE -i NONE -l tests/persistence_config.lua
+nvim --headless -u NONE -i NONE -l tests/ui_config.lua
 lua tests/notebook_config.lua
 ```
 
@@ -661,9 +713,23 @@ lua tests/notebook_config.lua
 | AI configuration          | Synthetic/stubbed startup, eligibility/context/model guards, separate hints, stale callbacks, correction acceptance, and manual completion |
 | Formatting configuration  | Stubbed formatter ordering, LSP fallback, toggles, exclusions, and errors                                                                  |
 | Persistence configuration | Stubbed missing-plugin guard, session options, exit-save setup, and dashboard restore actions                                              |
+| UI configuration          | Stubbed panel options, safe mappings/source selection, bottom undo globals, and loading-time close guards                                  |
 | Notebook configuration    | Stubbed provider/plugin guards, settings, mapping scope, and explicit initialization                                                       |
 
 The isolated plugin-manager spec test sources configuration with manager/process stubs, without a Python provider or real process/network calls; it does not install plugins or validate live builds. The isolated AI test also makes no real process/network requests. The startup smoke test is not an isolated first-install test: if Lazy is missing, normal startup clones the manager. No new migration/live-test pass is implied by these commands or coverage descriptions.
+
+The UI configuration test uses stubbed plugins and makes no source writes or process/network calls. Existing diagnostics remain available through Telescope and `<leader>lq`; no Trouble plugin is installed by this feature.
+
+### UI Integration
+
+With the declared plugins already installed, Git, `diff`, and the configured provider Python with `pynvim`:
+
+```sh
+provider="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/python-provider"
+"$provider/bin/python" tests/ui_live.py
+```
+
+The opt-in harness uses disposable source files and a temporary Git repository with fixture commits. It checks both sidebar opening orders, real symbols, rapid focus and tab isolation, narrow-screen resizing, last-source cleanup, bottom undo/diff placement, undo-node selection, loaded diffs/history, notebook working-tree exclusions, and session restoration. It exercises actual Normal-mode mappings and verifies that fixture source/index contents are not written by the UI actions. No commits are made in this configuration repository, and no tools/plugins/models are installed. A watchdog signals only the harness's own child on a stall; fixture data is removed afterward. Normal configuration startup still enables its configured integrations, including Cord.
 
 ### Notebook Integration
 

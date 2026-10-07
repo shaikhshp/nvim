@@ -35,7 +35,7 @@ vim.api.nvim_create_autocmd("VimResized", {
         local current = vim.api.nvim_get_current_tabpage()
         for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
             vim.api.nvim_set_current_tabpage(tab)
-            vim.cmd("wincmd =")
+            require("user.sidebar").resize()
         end
         vim.api.nvim_set_current_tabpage(current)
     end,
