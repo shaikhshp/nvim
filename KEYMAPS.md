@@ -166,6 +166,8 @@ These non-leader mappings are **buffer-local after LSP attachment**:
 
 Format/save eligibility, formatter ordering, fallback selection, and toggle interaction are documented in [README.md](README.md#formatting). CodeLens/other actions require server support.
 
+Local Harper/Typos spelling HINTs reuse `gl`, `<Space>ld` / `<Space>lw`, and `<Space>lq`; request corrections or Harper dictionary actions explicitly with the existing `<Space>la`. Their own namespaces disable signs, virtual text, and Insert-mode updates without changing compiler diagnostics. No new mappings, automatic spelling edits, or saves are added; see [spelling scope and setup](README.md#spelling-and-grammar).
+
 ## Completion And Editing Plugins
 
 Sources: `user.cmp`, `user.autopairs`. Completion keys are Insert mode unless noted. Manual local AI completion is cataloged separately below.
@@ -300,7 +302,7 @@ No Diffview staging, restoration, or merge-resolution actions are configured. **
 
 ### Telescope Git Defaults
 
-These are **picker-specific defaults from pinned Telescope 0.1.5**, active in Insert and Normal modes, not extra leader bindings. They replace generic picker behavior. Selecting a Git commit/branch is **not just previewing it**.
+These are **picker-specific defaults from pinned Telescope v0.2.2**, checked against the installed `lua/telescope/builtin/__git.lua` presets, active in Insert and Normal modes, not extra leader bindings. They replace generic picker behavior. Selecting a Git commit/branch is **not just previewing it**.
 
 | Picker                              | Keys                      | Action                                                                                  |
 | ----------------------------------- | ------------------------- | --------------------------------------------------------------------------------------- |
