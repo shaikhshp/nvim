@@ -149,7 +149,7 @@ To include optional Black:
 :lua require("user.lsp.mason").provision({black=true})
 ```
 
-The helper refreshes the registry and installs missing configured server packages, debug adapters, and selected formatters/utilities. These include jdtls, debugpy, codelldb, Java debug/test bundles, Ruff, latexindent, StyLua, shfmt, Prettier, and the Tree-sitter CLI. It does **not** update already-installed packages or install every optional formatter mentioned in this README.
+The helper refreshes the registry and installs missing configured server packages, debug adapters, and selected formatters/utilities. These include harper-ls, typos-lsp, jdtls, debugpy, codelldb, Java debug/test bundles, Ruff, latexindent, StyLua, shfmt, Prettier, and the Tree-sitter CLI. It does **not** update already-installed packages or install every optional formatter mentioned in this README.
 
 Provisioning is asynchronous. Wait in `:Mason` for completion. Available configured servers are enabled at startup and after successful provisioning; reopen buffers or restart if needed. Java attaches through its own ftplugin rather than the generic enable list.
 
@@ -288,7 +288,8 @@ Native Neovim LSP is the active language-service stack. Configuration uses `vim.
 | C / C++                 | `clangd`                    |
 | Markdown                | `marksman`                  |
 | TeX / BibTeX            | `texlab`                    |
-| Writing assistance      | `grammarly`                 |
+| Prose spelling/grammar  | `harper_ls`                 |
+| Code / config typos     | `typos_lsp`                 |
 
 Configured does not mean installed or attached. Only available configured executable commands are enabled. Check `:LspInfo`, `:Mason`, and `:checkhealth` when a feature is missing.
 
@@ -306,6 +307,33 @@ Configured does not mean installed or attached. Only available configured execut
 | `<leader>lf`                | Format buffer                        |
 
 Attachment-specific mappings depend on an active server and its capabilities. Ordinary diagnostics use signs, underlines, rounded floats, and severity sorting; ordinary diagnostic virtual text is disabled. AI review hints are separate.
+
+### Spelling and Grammar
+
+`user.spelling` and the server overrides configure local American English spelling/grammar with Harper and known-misspelling checks with Typos. The configured scope is **33 filetypes**, split without overlap:
+
+| Server | Configured filetypes |
+| ------ | -------------------- |
+| Harper (9) | `markdown`, `text`, `tex`, `plaintex`, `html`, `asciidoc`, `typst`, `quarto`, `gitcommit` |
+| Typos (24) | `python`, `lua`, `rust`, `java`, `c`, `cpp`, `javascript`, `javascriptreact`, `typescript`, `typescriptreact`, `sh`, `bash`, `zsh`, `go`, `ruby`, `cs`, `php`, `kotlin`, `css`, `bib`, `json`, `jsonc`, `yaml`, `toml` |
+
+Harper has `SpellCheck` enabled, uses the American dialect and default grammar rules, and maps `text` to `plaintext` and `plaintex` to `tex`. Its TeX parser is limited, not a full LTeX-style checker. Markdown fenced and inline code are ignored in the tested examples. Typos checks tokens for **known misspellings** in comments, strings, identifiers, and code/config data such as JSON, YAML, TOML, and BibTeX; it is not a full unknown-word dictionary or grammar checker for code. Neither scope implies grammar coverage for all languages or strings.
+
+Both servers publish underlined HINT diagnostics in their own LSP namespaces, with `signs = false`, `virtual_text = false`, and `update_in_insert = false`. Compiler/linter diagnostics and global rendering remain unchanged. Use existing `gl` diagnostic floats, `<Space>ld` / `<Space>lw` Telescope pickers, and `<Space>lq` location lists. `<Space>la` requests code actions explicitly; no automatic spelling edits or saves are configured.
+
+Typos replacements are text edits, not semantic refactors. Use the programming language server's rename action for identifiers with references, and recheck diagnostics/tests after corrections.
+
+Harper keeps its default user/workspace dictionary locations: on Linux the user word list is `$XDG_CONFIG_HOME/harper-ls/dictionary.txt` or `~/.config/harper-ls/dictionary.txt`, and the workspace list is `.harper-dictionary.txt` at the workspace root. Explicit Harper code actions can add words. Typos supports project `.typos.toml`, `typos.toml`, or `_typos.toml`, including `default.extend-words`, `default.extend-identifiers`, and `default.extend-ignore-re` for accepted tokens/patterns; restart the server or Neovim after changing its config. See [Harper dictionaries](https://writewithharper.com/docs/integrations/language-server#Dictionaries) and [Typos config support and limitations](https://github.com/tekumara/typos-lsp#config-file-support).
+
+Harper root markers are `.harper-dictionary.txt` and `.git`; Typos markers are `typos.toml`, `_typos.toml`, `.typos.toml`, `pyproject.toml`, `Cargo.toml`, and `.git`. Both fall back to the file's parent directory for standalone files. Initial activation requires a loaded, named normal buffer at most **1 MiB**; already-attached buffers are not detached if they grow beyond that size. Unnamed/`untitled:` buffers, special buffers, URI names, and `.ipynb` names in either lexical or resolved paths are excluded, including notebooks displayed as converted Python. Readonly/unmodifiable normal files are allowed. These checks are not DLP or content-based secret filtering.
+
+Install the two Mason packages explicitly, or use the existing provisioning helper (which includes both):
+
+```vim
+:MasonInstall harper-ls typos-lsp
+```
+
+Wait for completion and restart. Startup never auto-installs these packages. The old Grammarly package may remain installed, but `grammarly` is no longer in the configured server list or enabled by this setup. Harper and Typos run locally without authentication or hosted checking requests; this does not make the entire configuration offline or private.
 
 ### Python
 
@@ -612,7 +640,7 @@ Local AI transport does **not** make the entire configuration offline or private
 - Lazy bootstrap clones the manager on first startup. Explicit installation (including `require("lazy").install({lockfile=true})`), `:Lazy restore`, `:Lazy check` (Git fetch), `:Lazy update`, and `:Lazy sync` can use the network; automatic missing-plugin installs and background update checks are disabled.
 - Plugin builds (including Markdown backend downloads), Mason provisioning, and parser installation/updates can use the network.
 - JSON language-service schemas can refer to remote URLs.
-- Grammarly is configured when its executable is available; review that service separately.
+- Spelling/grammar uses local Harper and Typos processes without authentication or hosted checking requests. Grammarly is not enabled; its previously installed package is left in place. See [Spelling and Grammar](#spelling-and-grammar) for scope and exclusions, not a configuration-wide privacy guarantee.
 - Cord is set up during startup when installed and can publish Discord Rich Presence. Normal-mode `<leader>D` toggles presence off/on (`:Cord presence toggle`): hide it before gaming or working on sensitive projects, then press again to restore it. Hiding remains in effect across focus changes but is not saved across Neovim restarts; other Neovim instances can still publish their own activity.
 - LeetCode has account/network behavior and logging, with storage under `stdpath("data")/leetcode`.
 - Notebook kernels and TeX shell escape execute code and should only be used with trusted inputs.
@@ -632,6 +660,7 @@ lua/user/
   keymaps.lua              Global mappings
   plugins.lua              Lazy bootstrap, declarations, pins, and build hooks
   formatting.lua           Manual/save formatting policy
+  spelling.lua             Shared spelling eligibility, roots, and diagnostic namespaces
   persistence.lua          Session saving and native restore scope
   sidebar.lua              Shared Tree/outline layout and visible source tracking
   aerial.lua               Global outline attachment and panel settings
@@ -690,6 +719,8 @@ Update [KEYMAPS.md](KEYMAPS.md) when changing mappings. Lua uses four-space inde
 
 CodeCompanion is pinned to `v19.27.0`, Minuet to `3b0a4c5f97b7124d94302c608fbe01c0270d4fbe`, and Plenary to `74b06c6c75e4eeb3108ec01852001636d85a932b`. Check the full plugin specification for other pins. Copilot, CoC, null-ls, Magma, and impatient are not configured alternative stacks.
 
+Telescope is pinned to `v0.2.2` to replace legacy Treesitter `ft_to_lang`/config API calls that are nil with the modern native API. `<Space>F` remains current-buffer fuzzy search. After pulling, a drifted existing installation can be repaired with `:Lazy restore telescope.nvim`, then restart; no bulk update is needed. The lockfile-preservation guidance above still applies.
+
 ## Verification
 
 There is no general build/CI pipeline. Focused checks live under `tests/`; run them from the repository root. A passing stubbed test does not prove that real servers, adapters, kernels, or model answers work correctly.
@@ -701,6 +732,7 @@ nvim --headless '+quit'
 nvim --headless -u NONE -i NONE -l tests/plugin_manager_config.lua
 nvim --headless -u NONE -i NONE -l tests/ai_config.lua
 nvim --headless -u NONE -i NONE -l tests/formatting_config.lua
+nvim --headless -u NONE -i NONE -l tests/spelling_config.lua
 nvim --headless -u NONE -i NONE -l tests/persistence_config.lua
 nvim --headless -u NONE -i NONE -l tests/ui_config.lua
 lua tests/notebook_config.lua
@@ -712,6 +744,7 @@ lua tests/notebook_config.lua
 | Plugin manager specs      | Isolated sourced specs: bootstrap guards, pins, eager/AI loading policy, build hooks, and disabled auto-install/check/package flags        |
 | AI configuration          | Synthetic/stubbed startup, eligibility/context/model guards, separate hints, stale callbacks, correction acceptance, and manual completion |
 | Formatting configuration  | Stubbed formatter ordering, LSP fallback, toggles, exclusions, and errors                                                                  |
+| Spelling configuration    | Isolated Harper/Typos scopes, settings/language IDs, namespace rendering, eligibility, and standalone/project roots; no process/request calls |
 | Persistence configuration | Stubbed missing-plugin guard, session options, exit-save setup, and dashboard restore actions                                              |
 | UI configuration          | Stubbed panel options, safe mappings/source selection, bottom undo globals, and loading-time close guards                                  |
 | Notebook configuration    | Stubbed provider/plugin guards, settings, mapping scope, and explicit initialization                                                       |
@@ -719,6 +752,18 @@ lua tests/notebook_config.lua
 The isolated plugin-manager spec test sources configuration with manager/process stubs, without a Python provider or real process/network calls; it does not install plugins or validate live builds. The isolated AI test also makes no real process/network requests. The startup smoke test is not an isolated first-install test: if Lazy is missing, normal startup clones the manager. No new migration/live-test pass is implied by these commands or coverage descriptions.
 
 The UI configuration test uses stubbed plugins and makes no source writes or process/network calls. Existing diagnostics remain available through Telescope and `<leader>lq`; no Trouble plugin is installed by this feature.
+
+### Spelling and Search Integration
+
+Optional checks require the configured provider Python with `pynvim`, the installed declared plugins, and (for spelling) Mason's `harper-ls` and `typos-lsp` executables:
+
+```sh
+provider="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/python-provider"
+"$provider/bin/python" tests/telescope_live.py
+"$provider/bin/python" tests/spelling_live.py
+```
+
+These harnesses start isolated Neovim with `-u NONE -i NONE --noplugin`, clear `packpath` to exclude legacy Packer packages, and load only the required modules/installed Lazy runtime roots, not full configuration startup. They do not install/provision tools or make network/provider/model requests. Telescope checks the unchanged `<Space>F` search/selection on five synthetic unsaved buffers (Lua, Markdown, text, an unknown filetype, and unnamed). Spelling runs real local servers against disposable prose/code examples, checking Markdown code exclusions, quick fixes, project Typos config, notebook/special-buffer exclusions, and independent compiler diagnostics. Explicit workspace edits affect disposable buffers only, not their disk files. These are sample-based checks, not proof of language-wide spelling/grammar accuracy.
 
 ### UI Integration
 

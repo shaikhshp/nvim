@@ -49,7 +49,7 @@ require("lazy").setup({
     { "folke/persistence.nvim", commit = "b20b2a7887bd39c1a356980b45e03250f3dce49c" },
     { "folke/which-key.nvim" },
     { "NvChad/nvim-colorizer.lua" },
-    { "nvim-telescope/telescope.nvim", tag = "0.1.5", dependencies = "nvim-lua/plenary.nvim" },
+    { "nvim-telescope/telescope.nvim", tag = "v0.2.2", dependencies = "nvim-lua/plenary.nvim" },
     { "ahmedkhalf/project.nvim", commit = "628de7e433dd503e782831fe150bb750e56e55d6" },
     { "lewis6991/gitsigns.nvim", commit = "2c6f96dda47e55fa07052ce2e2141e8367cbaaf2" },
     { "akinsho/toggleterm.nvim", commit = "2a787c426ef00cb3488c11b14f5dcf892bbd0bda" },
